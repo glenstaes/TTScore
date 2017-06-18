@@ -5,6 +5,7 @@ import { AppRoutingModule } from "./app.routing";
 import { AppComponent } from "./app.component";
 
 import { SeasonsService } from "./seasons/seasons.service";
+import { ClubsService } from "./clubs/clubs.service";
 import { DatabaseService } from "./database/database.service";
 import { TabTImportService } from "./tabt/TabTImport.service";
 
@@ -28,6 +29,7 @@ import { ImportComponent } from "./import/import.component";
         ImportComponent
     ],
     providers: [
+        ClubsService,
         DatabaseService,
         SeasonsService,
         TabTImportService
