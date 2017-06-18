@@ -1,0 +1,7 @@
+<ActionBar title="TTScore - Instellingen" class="action-bar">
+    <ActionItem [nsRouterLink]="['/home']" text="Home" android.systemIcon="ic_menu_home"></ActionItem>
+</ActionBar>
+<StackLayout class="p-10 page">
+    <Label class="h3" text="Seizoen"></Label>
+    <ListPicker [items]="allSeasons" [selectedIndex]="season" (selectedIndexChange)="onChangeSeason($event)"></ListPicker>
+</StackLayout>
