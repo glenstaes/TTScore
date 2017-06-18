@@ -59,6 +59,7 @@ export class TabTImportService {
                 observer.next(allImportsResult);
 
                 if(allImportsResult.seasons.completed){
+                    appSettings.setBoolean(TABT_SEASONS_IMPORTED, true);
                     observer.complete();
                 }
             });

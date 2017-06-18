@@ -17,9 +17,7 @@ export class ImportComponent implements AfterViewInit {
     }
 
     ngAfterViewInit(){
-        console.log("import all");
         this._tabtImportService.importAll().subscribe((importAllResult) => {
-            console.dir(importAllResult);
             this.message = `Seizoenen importeren ... (${importAllResult.seasons.imported} van ${importAllResult.seasons.total})`;
         });
     }
