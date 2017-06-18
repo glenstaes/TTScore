@@ -23,9 +23,7 @@ export class SeasonsService {
      * Ensures that the seasons table exists in the database.
      */
     private _ensureTable() {
-        (new Sqlite("ttscore.db")).then((db) => {
-            db.execSQL(`CREATE TABLE IF NOT EXISTS seasons (id INTEGER PRIMARY KEY, name TEXT, isCurrent BOOLEAN)`)
-        });
+        this.db.execSQL(`CREATE TABLE IF NOT EXISTS seasons (id INTEGER PRIMARY KEY, name TEXT, isCurrent BOOLEAN)`).subscribe();
     }
 
     /**
@@ -33,19 +31,17 @@ export class SeasonsService {
      */
     getAll() {
         return new Observable<Season[]>((observer) => {
-            (new Sqlite("ttscore.db")).then((db) => {
-                db.all(`SELECT * FROM seasons`).then((rows) => {
-                    let seasons = [];
-                    console.dir(rows);
+            this.db.all(`SELECT * FROM seasons`).subscribe((rows) => {
+                let seasons = [];
+                console.dir(rows);
 
-                    rows.forEach((row) => {
-                        console.dir(row);
-                        seasons.push(new Season(row[0], row[1], row[2]));
-                    });
-
-                    observer.next(seasons);
-                    observer.complete();
+                rows.forEach((row) => {
+                    console.dir(row);
+                    seasons.push(new Season(row[0], row[1], row[2]));
                 });
+
+                observer.next(seasons);
+                observer.complete();
             });
         });
     }
@@ -57,17 +53,15 @@ export class SeasonsService {
      */
     get(seasonId) {
         return new Observable<Season>((observer) => {
-            (new Sqlite("ttscore.db")).then((db) => {
-                db.all(`SELECT * FROM seasons WHERE id = ?`, [seasonId]).then((rows) => {
-                    let seasons = [];
+            this.db.all(`SELECT * FROM seasons WHERE id = ?`, [seasonId]).subscribe((rows) => {
+                let seasons = [];
 
-                    rows.forEach((row) => {
-                        seasons.push(new Season(row[0], row[1], row[2]));
-                    });
-
-                    observer.next(seasons.length ? seasons[0] : undefined);
-                    observer.complete();
+                rows.forEach((row) => {
+                    seasons.push(new Season(row[0], row[1], row[2]));
                 });
+
+                observer.next(seasons.length ? seasons[0] : undefined);
+                observer.complete();
             });
         });
     }
@@ -114,11 +108,9 @@ export class SeasonsService {
      */
     private _create(season: Season) {
         return new Observable<boolean>((observer) => {
-            (new Sqlite("ttscore.db")).then((db) => {
-                db.execSQL(`INSERT INTO seasons VALUES (?,?,?)`, [season.id, season.name, season.isCurrent]).then((rows) => {
-                    observer.next(rows ? true : false);
-                    observer.complete();
-                });
+            this.db.execSQL(`INSERT INTO seasons VALUES (?,?,?)`, [season.id, season.name, season.isCurrent]).subscribe((rows) => {
+                observer.next(rows ? true : false);
+                observer.complete();
             });
         });
     }
@@ -130,11 +122,9 @@ export class SeasonsService {
      */
     private _update(season: Season) {
         return new Observable<boolean>((observer) => {
-            (new Sqlite("ttscore.db")).then((db) => {
-                db.execSQL(`UPDATE seasons SET name = ?, isCurrent = ? WHERE id = ?`, [season.name, season.isCurrent, season.id]).then((rows) => {
-                    observer.next(rows ? true : false);
-                    observer.complete();
-                });
+            this.db.execSQL(`UPDATE seasons SET name = ?, isCurrent = ? WHERE id = ?`, [season.name, season.isCurrent, season.id]).subscribe((rows) => {
+                observer.next(rows ? true : false);
+                observer.complete();
             });
         });
     }
@@ -163,6 +153,10 @@ export class SeasonsService {
         });
     }
 
+    /**
+     * Imports the data from the TabT api.
+     * @returns {TabTSeasonsImportResult} The result data for the import.
+     */
     importFromTabT(): Observable<TabTSeasonsImportResult> {
         return new Observable<TabTSeasonsImportResult>((observer) => {
             let importedSeasons = 0;
@@ -180,7 +174,7 @@ export class SeasonsService {
 
                         observer.next(nextDataResult);
 
-                        if(nextDataResult.completed){
+                        if (nextDataResult.completed) {
                             observer.complete();
                         }
                     });
