@@ -54,7 +54,7 @@ export class DatabaseService {
     all(query: string, data: Array<any> = []){
         return new Observable<any>((observer) => {
             this.connect().then(() => {
-                this.database.execSQL(query, data).then((result) => {
+                this.database.all(query, data).then((result) => {
                     observer.next(result);
                     observer.complete();
                 });

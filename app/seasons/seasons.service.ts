@@ -10,6 +10,8 @@ import { Season } from "./Season.model";
 
 @Injectable()
 export class SeasonsService {
+    private allSeasons: Array<Season>;
+
     /**
      * Creates a new instance of the service.
      * @param {DatabaseService} db - The database service for working with the database
@@ -31,18 +33,21 @@ export class SeasonsService {
      */
     getAll() {
         return new Observable<Season[]>((observer) => {
-            this.db.all(`SELECT * FROM seasons`).subscribe((rows) => {
-                let seasons = [];
-                console.dir(rows);
+            if (typeof this.allSeasons === "undefined") {
+                this.db.all(`SELECT * FROM seasons`).subscribe((rows) => {
+                    let seasons = [];
 
-                rows.forEach((row) => {
-                    console.dir(row);
-                    seasons.push(new Season(row[0], row[1], row[2]));
+                    rows.forEach((row) => {
+                        seasons.push(new Season(row[0], row[1], row[2]));
+                    });
+
+                    observer.next(seasons);
+                    observer.complete();
                 });
-
-                observer.next(seasons);
+            } else {
+                observer.next(this.allSeasons);
                 observer.complete();
-            });
+            }
         });
     }
 
