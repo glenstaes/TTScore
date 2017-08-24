@@ -3,5 +3,8 @@
 </ActionBar>
 <StackLayout class="p-10 page">
     <Label class="h3" text="Seizoen"></Label>
-    <ListPicker [items]="allSeasons" [selectedIndex]="season" (selectedIndexChange)="onChangeSeason($event)"></ListPicker>
+    <ListPicker [items]="allSeasons" [selectedIndex]="seasonIndex" (selectedIndexChange)="onChangeSeason($event)"></ListPicker>
+    <Label class="h3" text="Club"></Label>
+    <ListPicker *ngIf="allClubs?.length" [items]="allClubs" [selectedIndex]="clubIndex" (selectedIndexChange)="onChangeClub($event)"></ListPicker>
+    <Button *ngIf="allClubs?.length === 0" (tap)="importClubs()" text="Clubs ophalen"></Button>
 </StackLayout>
