@@ -24,15 +24,31 @@ export class ClubsService {
      * Ensures that the clubs table exists in the database.
      */
     private _ensureTable() {
-        this.db.execSQL(`CREATE TABLE IF NOT EXISTS clubs (uniqueId TEXT PRIMARY KEY, name TEXT, longName TEXT, categoryId INTEGER)`).subscribe();
+        this.db.execSQL(`CREATE TABLE IF NOT EXISTS clubs (uniqueId TEXT, seasonId INTEGER, name TEXT, longName TEXT, categoryId INTEGER)`).subscribe();
     }
 
     /**
      * Gets all the club entries from the database.
+     * @returns {Observable<Array<Club>>} An observable with an array of Club instances.
      */
     getAll() {
         return new Observable<Club[]>((observer) => {
             this.db.all(`SELECT * FROM clubs`).subscribe((rows) => {
+                observer.next(this._processClubsFromDatabase(rows));
+                observer.complete();
+            });
+        });
+    }
+
+    /**
+     * Gets the clubs for a specific season.
+     * @param {number} seasonId - The unique identifier of the season.
+     * @returns {Observable<Array<Club>>} An observable with an array of Club instances.
+     */
+    getAllBySeason(seasonId) {
+        return new Observable<Club[]>((observer) => {
+            this.db.all(`SELECT * FROM clubs WHERE seasonId = ?`, [seasonId]).subscribe((rows) => {
+                observer.next(this._processClubsFromDatabase(rows));
                 let clubs = [];
 
                 rows.forEach((row) => {
@@ -47,19 +63,31 @@ export class ClubsService {
     }
 
     /**
+     * @private
+     * Process the rows from the database into Club instances.
+     * @param rows - The rows that were returned by the query.
+     * @returns {Array<Club>} An array of Club instances.
+     */
+    private _processClubsFromDatabase(rows) {
+        let clubs = [];
+
+        rows.forEach((row) => {
+            // TODO(glenstaes): Fetch the category and the venues
+            clubs.push(new Club(row[0], row[2], row[3], null, null, row[1]));
+        });
+
+        return clubs;
+    }
+
+    /**
      * Gets a club from the database.
      * @param {number} clubId - The id of the club to retrieve from the database.
      * @returns {Observable<Club>} The club to get from the database.
      */
-    get(clubId) {
+    get(clubId, seasonId) {
         return new Observable<Club>((observer) => {
-            this.db.all(`SELECT * FROM clubs WHERE uniqueId = ?`, [clubId]).subscribe((rows) => {
-                let clubs = [];
-
-                rows.forEach((row) => {
-                    // TODO(glenstaes): Fetch the category and the venues
-                    clubs.push(new Club(row[0], row[1], row[2], null, null));
-                });
+            this.db.all(`SELECT * FROM clubs WHERE uniqueId = ? AND seasonId = ?`, [clubId, seasonId]).subscribe((rows) => {
+                let clubs = this._processClubsFromDatabase(rows);
 
                 observer.next(clubs.length ? clubs[0] : undefined);
                 observer.complete();
@@ -95,7 +123,7 @@ export class ClubsService {
      */
     exists(club: Club): Observable<boolean> {
         return new Observable((observer) => {
-            this.get(club.uniqueIndex).subscribe((club) => {
+            this.get(club.uniqueIndex, club.seasonId).subscribe((club) => {
                 observer.next(typeof club === "undefined" ? false : true);
                 observer.complete();
             });
@@ -109,7 +137,7 @@ export class ClubsService {
      */
     private _create(club: Club) {
         return new Observable<boolean>((observer) => {
-            this.db.execSQL(`INSERT INTO clubs VALUES (?,?,?,?)`, [club.uniqueIndex, club.name, club.longName, club.category.id]).subscribe((rows) => {
+            this.db.execSQL(`INSERT INTO clubs VALUES (?,?,?,?,?)`, [club.uniqueIndex, club.seasonId, club.name, club.longName, club.category.id]).subscribe((rows) => {
                 observer.next(rows ? true : false);
                 observer.complete();
             });
@@ -155,7 +183,7 @@ export class ClubsService {
                     venues.push(new ClubVenue(venueEntry.Id, venueEntry.ClubVenue, venueEntry.Name, venueEntry.Street, venueEntry.Town, venueEntry.Phone, venueEntry.Comment));
                 });
 
-                clubs.push(new Club(clubEntry.UniqueIndex, clubEntry.Name, clubEntry.LongName, new ClubCategory(clubEntry.Category, clubEntry.CategoryName), venues));
+                clubs.push(new Club(clubEntry.UniqueIndex, clubEntry.Name, clubEntry.LongName, new ClubCategory(clubEntry.Category, clubEntry.CategoryName), venues, seasonId));
             });
 
             return clubs;
@@ -209,7 +237,7 @@ export interface TabTClubEntry {
 /**
  * This interface can be used for intellisense on a club venue entry from the TabT API.
  */
-export interface TabTClubVenueEntry{
+export interface TabTClubVenueEntry {
     Id: number;
     ClubVenue: number;
     Name: string;

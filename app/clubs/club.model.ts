@@ -6,8 +6,13 @@ export class Club {
         public name: string,
         public longName: string,
         public category: ClubCategory,
-        public venues: ClubVenue[]
+        public venues: ClubVenue[],
+        public seasonId: number
     ){}
+
+    toString(){
+        return `${this.uniqueIndex} - ${this.longName}`;
+    }
 }
 
 export class ClubCategory {
