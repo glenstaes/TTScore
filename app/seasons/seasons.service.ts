@@ -9,6 +9,12 @@ import { DatabaseService } from "../database/database.service";
 import { Season } from "./Season.model";
 
 @Injectable()
+
+/**
+ * Use this service for working with seasons.
+ * @private {Array<Season>} allSeasons - A cached array of season instances.
+ */
+
 export class SeasonsService {
     private allSeasons: Array<Season>;
 
@@ -30,6 +36,7 @@ export class SeasonsService {
 
     /**
      * Gets all the season entries from the database.
+     * @returns {Observable<Season[]>} An observable that will contain the seasons from the database.
      */
     getAll() {
         return new Observable<Season[]>((observer) => {
@@ -40,6 +47,9 @@ export class SeasonsService {
                     rows.forEach((row) => {
                         seasons.push(new Season(row[0], row[1], row[2]));
                     });
+
+                    // Cache the result
+                    this.allSeasons = seasons;
 
                     observer.next(seasons);
                     observer.complete();
@@ -82,10 +92,12 @@ export class SeasonsService {
                 if (exists) {
                     this._update(season).subscribe((saved) => {
                         observer.next(season);
+                        observer.complete();
                     });
                 } else {
                     this._create(season).subscribe((saved) => {
                         observer.next(season);
+                        observer.complete();
                     });
                 }
             })
@@ -108,8 +120,8 @@ export class SeasonsService {
 
     /**
      * Creates a new season in the database.
-     * @param season - The season to create in the database.
-     * @returns {Observable} True or false whether it's inserted.
+     * @param {Season} season - The season to create in the database.
+     * @returns {Observable<boolean>} True or false whether it's inserted.
      */
     private _create(season: Season) {
         return new Observable<boolean>((observer) => {
@@ -123,7 +135,7 @@ export class SeasonsService {
     /**
      * Updates a new season in the database.
      * @param season - The season to update in the database.
-     * @returns {Observable} True or false whether it's inserted.
+     * @returns {Observable<boolean>} True or false whether it's inserted.
      */
     private _update(season: Season) {
         return new Observable<boolean>((observer) => {
@@ -150,7 +162,7 @@ export class SeasonsService {
             let jsonResponse = <TabTSeasonsResponse>response.json();
             let seasons = [];
 
-            jsonResponse.SeasonEntries.forEach((seasonEntry) => {
+            jsonResponse.SeasonEntries.forEach((seasonEntry: TabTSeasonEntry) => {
                 seasons.push(new Season(seasonEntry.Season, seasonEntry.Name, seasonEntry.IsCurrent));
             });
 
@@ -166,11 +178,14 @@ export class SeasonsService {
         return new Observable<TabTSeasonsImportResult>((observer) => {
             let importedSeasons = 0;
 
+            // Get all seasons from the TabT service
             this.getAllFromTabT().subscribe((seasons) => {
                 seasons.forEach((season) => {
+                    // Save each season in the local database
                     this.save(season).subscribe(() => {
                         importedSeasons++;
-                        let nextDataResult = {
+
+                        const nextDataResult = {
                             imported: importedSeasons,
                             total: seasons.length,
                             seasons: seasons,

@@ -18,22 +18,22 @@ export interface TabTImportResult {
 }
 
 export interface TabTAllImportsResult {
-    seasons: TabTSeasonsImportResult;
-    clubs: TabTClubsImportResult;
+    seasons?: TabTSeasonsImportResult;
+    clubs?: TabTClubsImportResult;
 }
 
 /**
  * This interface can be used for importing data from the TabT api.
  */
 export interface TabTSeasonsImportResult extends TabTImportResult {
-    seasons: Season[]
+    seasons?: Season[]
 }
 
 /**
  * This interface can be used for importing data from the TabT api.
  */
 export interface TabTClubsImportResult extends TabTImportResult {
-    clubs: Club[]
+    clubs?: Club[]
 }
 
 @Injectable()
@@ -54,7 +54,7 @@ export class TabTImportService {
      * @returns {boolean} Whether everything is imported.
      */
     get everythingIsImported() {
-        return this.isSeasonsImported && this.isClubsImported;
+        return this.isSeasonsImported && this.isClubsImported && false;
     }
 
     /**
@@ -63,29 +63,24 @@ export class TabTImportService {
     importAll() {
         return new Observable<TabTAllImportsResult>((observer) => {
             let allImportsResult: TabTAllImportsResult = {
-                seasons: null,
-                clubs: null
+                seasons: { seasons: [], completed: false, imported: 0, total: -1 },
+                clubs: { clubs: [], completed: false, imported: 0, total: -1 }
             }
 
-            const checkAllComplete = () => {
-                if (allImportsResult.seasons.completed && allImportsResult.clubs.completed) {
-                    observer.complete();
-                }
-            }
-
+            // Start the import process
             this._seasonsService.importFromTabT().subscribe((seasonsImportResult) => {
                 allImportsResult.seasons = seasonsImportResult;
 
-                observer.next(allImportsResult);
-
+                // When all seasons are imported, load the clubs for the current season
                 if (allImportsResult.seasons.completed) {
                     appSettings.setBoolean(TABT_SEASONS_IMPORTED, true);
 
                     // When all seasons are loaded, load the clubs for the current season
-                    let currentSeasons = allImportsResult.seasons.seasons.filter((season) => {
+                    const currentSeasons = allImportsResult.seasons.seasons.filter((season) => {
                         return season.isCurrent;
                     });
 
+                    // Trigger the importation of the clubs
                     this._clubsService.importFromTabT(currentSeasons[0].id).subscribe((clubsImportResult) => {
                         allImportsResult.clubs = clubsImportResult;
 
@@ -97,6 +92,8 @@ export class TabTImportService {
                         }
                     });
                 }
+
+                observer.next(allImportsResult);
             });
         });
     }
