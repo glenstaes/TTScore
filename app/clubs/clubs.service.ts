@@ -24,7 +24,7 @@ export class ClubsService {
      * Ensures that the clubs table exists in the database.
      */
     private _ensureTable() {
-        this.db.execSQL(`CREATE TABLE IF NOT EXISTS clubs (id INTEGER PRIMARY KEY, name TEXT, isCurrent BOOLEAN)`).subscribe();
+        this.db.execSQL(`CREATE TABLE IF NOT EXISTS clubs (uniqueId TEXT PRIMARY KEY, name TEXT, longName TEXT, categoryId INTEGER)`).subscribe();
     }
 
     /**
@@ -53,7 +53,7 @@ export class ClubsService {
      */
     get(clubId) {
         return new Observable<Club>((observer) => {
-            this.db.all(`SELECT * FROM clubs WHERE id = ?`, [clubId]).subscribe((rows) => {
+            this.db.all(`SELECT * FROM clubs WHERE uniqueId = ?`, [clubId]).subscribe((rows) => {
                 let clubs = [];
 
                 rows.forEach((row) => {
@@ -123,7 +123,7 @@ export class ClubsService {
      */
     private _update(club: Club) {
         return new Observable<boolean>((observer) => {
-            this.db.execSQL(`UPDATE clubs SET name = ?, longName = ?, categoryId = ? WHERE id = ?`, [club.name, club.longName, club.category.id, club.uniqueIndex]).subscribe((rows) => {
+            this.db.execSQL(`UPDATE clubs SET name = ?, longName = ?, categoryId = ? WHERE uniqueId = ?`, [club.name, club.longName, club.category.id, club.uniqueIndex]).subscribe((rows) => {
                 observer.next(rows ? true : false);
                 observer.complete();
             });
@@ -151,7 +151,7 @@ export class ClubsService {
             jsonResponse.forEach((clubEntry) => {
                 let venues = [];
 
-                clubEntry.VenueEntries.forEach((venueEntry) => {
+                (clubEntry.VenueEntries || []).forEach((venueEntry) => {
                     venues.push(new ClubVenue(venueEntry.Id, venueEntry.ClubVenue, venueEntry.Name, venueEntry.Street, venueEntry.Town, venueEntry.Phone, venueEntry.Comment));
                 });
 

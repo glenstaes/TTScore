@@ -1,4 +1,13 @@
-<ActionBar title='TTScore - Import' class="action-bar"></ActionBar>
+<ActionBar title='TTScore - Import' class="action-bar">
+    <ActionItem *ngIf="importReady" [nsRouterLink]="['/home']" text="Home" android.systemIcon="ic_menu_home"></ActionItem>
+</ActionBar>
 <StackLayout class="page p-10">
-    <Label class="h3" [text]="message"></Label>
+    <ListView #importListView [items]="importListViewItems | async" class="list-group">
+        <ng-template let-item="item">
+            <StackLayout class="p-10">
+                <Label class="h3" [text]="item.label"></Label>
+                <Label *ngIf="item.importResult.total > -1" text="{{ item.importResult.imported }} van {{ item.importResult.total }}"></Label>
+            </StackLayout>
+        </ng-template>
+    </ListView>
 </StackLayout>
