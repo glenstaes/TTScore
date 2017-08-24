@@ -1,6 +1,8 @@
 import { Component } from "@angular/core";
 import { Observable, Observer } from "rxjs/Rx";
 import { TabTImportService } from "../tabt/TabTImport.service";
+import { CURRENT_SELECTED_SEASON_KEY } from "../settings/appsettingskeys";
+let appSettings = require("application-settings");
 
 @Component({
     templateUrl: "import/import.component.tmpl.html"
@@ -48,6 +50,15 @@ export class ImportComponent {
             // When all data is loaded, finish the observable
             if(importAllResult.clubs.completed && importAllResult.seasons.completed){
                 this.importReady = true;
+                
+                // Set the current season as the default season in the application
+                const filteredCurrentSeason = importAllResult.seasons.seasons.filter((season) => {
+                    return season.isCurrent;
+                });
+                if(filteredCurrentSeason.length){
+                    appSettings.setNumber(CURRENT_SELECTED_SEASON_KEY, importAllResult.seasons.seasons.indexOf(filteredCurrentSeason[0]) + 1);
+                }
+
                 observer.complete();
             }
         });
