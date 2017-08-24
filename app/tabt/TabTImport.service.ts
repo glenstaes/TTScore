@@ -54,7 +54,7 @@ export class TabTImportService {
      * @returns {boolean} Whether everything is imported.
      */
     get everythingIsImported() {
-        return this.isSeasonsImported && this.isClubsImported && false;
+        return this.isSeasonsImported && this.isClubsImported;
     }
 
     /**
