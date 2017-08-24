@@ -49,6 +49,14 @@ export class ClubsService {
         return new Observable<Club[]>((observer) => {
             this.db.all(`SELECT * FROM clubs WHERE seasonId = ?`, [seasonId]).subscribe((rows) => {
                 observer.next(this._processClubsFromDatabase(rows));
+                let clubs = [];
+
+                rows.forEach((row) => {
+                    // TODO(glenstaes): Fetch the category and the venues
+                    clubs.push(new Club(row[0], row[1], row[2], null, null));
+                });
+
+                observer.next(clubs);
                 observer.complete();
             });
         });
