@@ -6,12 +6,14 @@ import { AppComponent } from "./app.component";
 
 import { SeasonsService } from "./seasons/seasons.service";
 import { ClubsService } from "./clubs/clubs.service";
+import { ClubMemberService } from "./members/clubmember.service";
 import { DatabaseService } from "./database/database.service";
 import { TabTImportService } from "./tabt/TabTImport.service";
 
 import { HomeComponent } from "./home/home.component";
 import { SettingsComponent } from "./settings/settings.component";
 import { ImportComponent } from "./import/import.component";
+import { MembersComponent } from "./members/members.component";
 
 @NgModule({
     bootstrap: [
@@ -26,10 +28,12 @@ import { ImportComponent } from "./import/import.component";
         AppComponent,
         HomeComponent,
         SettingsComponent,
-        ImportComponent
+        ImportComponent,
+        MembersComponent
     ],
     providers: [
         ClubsService,
+        ClubMemberService,
         DatabaseService,
         SeasonsService,
         TabTImportService

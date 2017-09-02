@@ -1,0 +1,22 @@
+<ActionBar title='{{ currentClub?.longName }} - Spelers' class="action-bar">
+    <ActionItem [nsRouterLink]="['/home']" text="Home" android.systemIcon="ic_menu_home"></ActionItem>
+    <ActionItem [nsRouterLink]="['/settings']" text="Instellingen" android.systemIcon="ic_menu_preferences"></ActionItem>
+</ActionBar>
+<StackLayout class="page">
+    <ListView #membersListView [items]="members" class="list-group">
+        <ng-template let-item="item">
+            <GridLayout columns="70, 30, *" rows="auto" orientation="horizontal" class="p-10">
+                <StackLayout col="0">
+                    <Label class="h3" text="{{ item.position }} - {{ item.rankingIndex }}"></Label>
+                </StackLayout>
+                <StackLayout col="1">
+                    <Label class="h3" [text]="item.ranking"></Label>
+                </StackLayout>
+                <StackLayout col="2">
+                    <Label class="h3" [text]="item"></Label>
+                    <Label [text]="item.uniqueIndex"></Label>
+                </StackLayout>
+            </GridLayout>
+        </ng-template>
+    </ListView>
+</StackLayout>
