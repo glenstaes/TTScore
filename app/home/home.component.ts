@@ -12,6 +12,9 @@ let appSettings = require("application-settings");
 export class HomeComponent implements OnInit {
     currentClub: Club;
 
+    // Messages
+    noClubLabel = "Selecteer een favoriete club in de instellingen";
+
     /**
      * Creates a new instance of the component
      * @param {SeasonsService} _seasonsService - The service to work with seasons.

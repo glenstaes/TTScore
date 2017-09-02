@@ -2,5 +2,6 @@
     <ActionItem [nsRouterLink]="['/settings']" text="Instellingen" android.systemIcon="ic_menu_preferences"></ActionItem>
 </ActionBar>
 <StackLayout class="p-10 page">
-    <Button [nsRouterLink]="['/members']" text="Spelers"></Button>
+    <Label *ngIf="!currentClub" [text]="noClubLabel"></Label>
+    <Button *ngIf="currentClub" [nsRouterLink]="['/members']" text="Spelers"></Button>
 </StackLayout>
