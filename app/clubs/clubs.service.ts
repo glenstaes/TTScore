@@ -53,7 +53,7 @@ export class ClubsService {
 
                 rows.forEach((row) => {
                     // TODO(glenstaes): Fetch the category and the venues
-                    clubs.push(new Club(row[0], row[1], row[2], null, null));
+                    clubs.push(new Club(row[0], row[2], row[3], null, null, row[2]));
                 });
 
                 observer.next(clubs);
