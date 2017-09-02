@@ -1,15 +1,30 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { SeasonsService } from "../seasons/seasons.service";
+import { ClubsService } from "../clubs/clubs.service";
+import { Club } from "../clubs/club.model";
+import { CURRENT_SELECTED_CLUB_KEY, CURRENT_SELECTED_SEASON_KEY } from "../settings/appsettingskeys";
+let appSettings = require("application-settings");
 
 @Component({
     templateUrl: "home/home.component.tmpl.html"
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
+    currentClub: Club;
+
     /**
      * Creates a new instance of the component
      * @param {SeasonsService} _seasonsService - The service to work with seasons.
      */
-    constructor(private _seasonsService: SeasonsService) {
+    constructor(private _seasonsService: SeasonsService, private _clubsService: ClubsService) {
         
+    }
+
+    /**
+     * Tries to get the currently selected club.
+     */
+    ngOnInit(){
+        this._clubsService.get(appSettings.getString(CURRENT_SELECTED_CLUB_KEY), appSettings.getNumber(CURRENT_SELECTED_SEASON_KEY)).subscribe((club) => {
+            this.currentClub = club;
+        });
     }
 }
