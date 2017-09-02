@@ -7,6 +7,7 @@ import { AppComponent } from "./app.component";
 import { SeasonsService } from "./seasons/seasons.service";
 import { ClubsService } from "./clubs/clubs.service";
 import { ClubMemberService } from "./members/clubmember.service";
+import { TeamsService } from "./teams/teams.service";
 import { DatabaseService } from "./database/database.service";
 import { TabTImportService } from "./tabt/TabTImport.service";
 
@@ -34,6 +35,7 @@ import { MembersComponent } from "./members/members.component";
     providers: [
         ClubsService,
         ClubMemberService,
+        TeamsService,
         DatabaseService,
         SeasonsService,
         TabTImportService

@@ -3,5 +3,13 @@
 </ActionBar>
 <StackLayout class="p-10 page">
     <Label *ngIf="!currentClub" [text]="noClubLabel"></Label>
-    <Button *ngIf="currentClub" [nsRouterLink]="['/members']" text="Spelers"></Button>
+    <StackLayout *ngIf="currentClub">
+        <Button *ngIf="currentClub" [nsRouterLink]="['/members']" text="Spelers van {{ currentClub?.longName }}"></Button>
+        <Label *ngIf="!allTeams.length" [text]="noTeamsLabel"></Label>
+        <ListPicker *ngIf="allTeams.length" [items]="allTeams" [selectedIndex]="selectedTeamIndex" (selectedIndexChange)="onChangeTeam($event)"></ListPicker>
+
+        <StackLayout *ngIf="currentTeam">
+
+        </StackLayout>
+    </StackLayout>
 </StackLayout>
