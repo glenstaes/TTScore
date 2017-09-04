@@ -236,7 +236,7 @@ export class TeamMatchesService {
                 teams.push(new TeamMatch(
                     divisionId || team.divisionId,
                     matchEntry.MatchId,
-                    typeof divisionId !== undefined ? "" : team.teamId,
+                    typeof divisionId !== "undefined" ? "" : team.teamId,
                     matchEntry.WeekName,
                     matchEntry.Date,
                     matchEntry.Time,
