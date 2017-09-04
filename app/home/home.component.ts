@@ -43,6 +43,9 @@ export class HomeComponent implements OnInit {
     selectedTeamIndex = 0;
 
     // Messages
+    players = "Spelers:";
+    selectTeam = "Kies een team:";
+    teamActions = "Acties voor dit team:";
     noClubLabel = "Selecteer een favoriete club in de instellingen";
     noTeamsLabel = "Er zijn (nog) geen teams gevonden voor deze club";
 
