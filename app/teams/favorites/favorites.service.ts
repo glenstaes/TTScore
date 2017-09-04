@@ -81,6 +81,18 @@ export class FavoritesService {
     }
 
     /**
+     * Removes all favorites.
+     */
+    deleteAll(){
+        return new Observable<boolean>((observer) => {
+            this.db.all(`DELETE FROM teamfavorites`).subscribe((rows) => {
+                observer.next(rows ? true : false);
+                observer.complete();
+            });
+        });
+    }
+
+    /**
      * Checks whether a team favorite exists.
      * @param {Team} team - The team to check whether it exists.
      * @returns {Observable<boolean>} True or false in an observable whether the team exists.

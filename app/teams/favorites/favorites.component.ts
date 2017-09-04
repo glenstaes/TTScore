@@ -19,6 +19,7 @@ export class FavoritesComponent implements OnInit {
 
     // Messages
     noFavorites = "Je hebt geen favorieten.";
+    deleteAll = "Alle favorieten verwijderen";
 
     constructor(
         private _favoritesService: FavoritesService,
@@ -28,6 +29,12 @@ export class FavoritesComponent implements OnInit {
     ngOnInit(){
         this._favoritesService.getAll().subscribe((teams) => {
             this.favorites = teams;
+        });
+    }
+
+    onTapDeleteAll(){
+        this._favoritesService.deleteAll().subscribe(() => {
+            this.favorites = [];
         });
     }
 

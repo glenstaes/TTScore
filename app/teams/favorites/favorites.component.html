@@ -3,6 +3,7 @@
 </ActionBar>
 <StackLayout class="page">
     <Label class="p-10" *ngIf="!favorites.length" [text]="noFavorites"></Label>
+    <Button *ngIf="favorites.length" [text]="deleteAll" (tap)="onTapDeleteAll()"></Button>
     <ListView *ngIf="favorites.length" #favoritesListView [items]="favorites" class="list-group" (itemTap)="onTapFavoriteItem($event)">
         <ng-template let-item="item">
             <StackLayout class="p-10">
