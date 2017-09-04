@@ -5,12 +5,13 @@ import { Team } from "../../teams/team.model";
 import { TeamsService } from "../../teams/teams.service";
 import { CURRENT_SELECTED_TEAM_KEY, CURRENT_SELECTED_CLUB_KEY } from "../../settings/appsettingskeys";
 import { TeamMatch } from "./TeamMatch.model";
+import { DivisionWeekMatches, DivisionWeekMatchesList } from "./DivisionWeekMatches.model";
 import { TeamMatchesService } from "./teammatches.service";
 
 let appSettings = require("application-settings");
 
 @Component({
-    templateUrl: "teams/matches/teammatches.component.html",
+    templateUrl: "teams/matches/divisionmatches.component.html",
     styles: [`
         .textright{
             text-align: right;
@@ -19,12 +20,14 @@ let appSettings = require("application-settings");
 })
 
 /**
- * This component is the page for displaying a list of matches for a team
+ * This component is the page for displaying a list of matches for a division
  */
 
-export class TeamMatchesComponent {
+export class DivisionMatchesComponent {
     currentTeam: Team;
+    currentWeek = "01";
     matches: Array<TeamMatch> = [];
+    weekNames = ["01", "02", "03"];
 
     /**
      * Creates a new instance of the component
@@ -46,7 +49,7 @@ export class TeamMatchesComponent {
             this.currentTeam = team;
 
             // When the team is retrieved, we can start to retrieve the matches
-            this._matchesService.getAllByTeam(this.currentTeam).subscribe((matches) => {
+            this._matchesService.getAllByDivision(this.currentTeam.divisionId).subscribe((matches) => {
                 if (matches.length === 0) {
                     this._loadFromTabT();
                 } else {
@@ -68,8 +71,8 @@ export class TeamMatchesComponent {
      * Loads the data from the TabT api and displays the data.
      */
     private _loadFromTabT() {
-        // null as third parameter makes sure that only team matches are retrieved
-        this._matchesService.importFromTabT(appSettings.getString(CURRENT_SELECTED_CLUB_KEY), this.currentTeam, null).subscribe((matches) => {
+        // Sending a third parameter makes sure the matches for the division are loaded
+        this._matchesService.importFromTabT(appSettings.getString(CURRENT_SELECTED_CLUB_KEY), this.currentTeam, this.currentTeam.divisionId).subscribe((matches) => {
             this.matches = matches;
         });
     }

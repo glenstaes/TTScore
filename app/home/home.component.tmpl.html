@@ -12,7 +12,8 @@
 
             <StackLayout *ngIf="currentTeam">
                 <Button [nsRouterLink]="['/ranking']" text="Rangschikking"></Button>
-                <Button [nsRouterLink]="['/teammatches']" text="Team wedstrijden"></Button>
+                <Button [nsRouterLink]="['/teammatches']" text="Teamwedstrijden"></Button>
+                <Button [nsRouterLink]="['/divisionmatches']" text="Afdelingswedstrijden"></Button>
                 <Button *ngIf="!currentTeamIsFavorite" (tap)="onTapAddAsFavorite()" class="addToFavorites" text="Voeg toe aan favorieten"></Button>
                 <Button *ngIf="currentTeamIsFavorite" (tap)="onTapRemoveAsFavorite()" class="removeFromFavorites" text="Verwijder uit favorieten"></Button>
             </StackLayout>

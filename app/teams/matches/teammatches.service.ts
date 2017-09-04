@@ -32,15 +32,16 @@ export class TeamMatchesService {
      * Gets a match from the database.
      * @param {string} matchId - The id of the match to retrieve from the database.
      * @param {number} divisionId - The id of the division the match is played in.
+     * @param {string} teamId - The id of the team
      * @returns {Observable<TeamMatch>} The match to get from the database.
      */
-    get(matchId: string, divisionId: number) {
+    get(matchId: string, divisionId: number, teamId: string) {
         return new Observable<Team>((observer) => {
             if (typeof matchId === "undefined" || matchId === null) {
                 observer.next(undefined);
                 observer.complete();
             } else {
-                this.db.all(`SELECT * FROM matches WHERE matchId = ? AND divisionId = ?`, [matchId, divisionId]).subscribe((rows) => {
+                this.db.all(`SELECT * FROM matches WHERE matchId = ? AND divisionId = ? AND teamId = ?`, [matchId, divisionId, teamId]).subscribe((rows) => {
                     const matches = this._processTeamMatchesFromDatabase(rows);
 
                     observer.next(matches.length ? matches[0] : undefined);
@@ -78,7 +79,7 @@ export class TeamMatchesService {
      */
     exists(match: TeamMatch): Observable<boolean> {
         return new Observable((observer) => {
-            this.get(match.matchNumber, match.divisionId).subscribe((team) => {
+            this.get(match.matchNumber, match.divisionId, match.teamId).subscribe((team) => {
                 observer.next(typeof team === "undefined" ? false : true);
                 observer.complete();
             });
@@ -160,6 +161,19 @@ export class TeamMatchesService {
     }
 
     /**
+     * Gets all the match entries for a division.
+     * @param {number} divisionId - The id of the division to get the matches for.
+     */
+    getAllByDivision(divisionId: number) {
+        return new Observable<Array<TeamMatch>>((observer) => {
+            this.db.all(`SELECT * FROM matches WHERE divisionId = ? AND teamId = "" ORDER BY weekName`, [divisionId]).subscribe((rows) => {
+                observer.next(this._processTeamMatchesFromDatabase(rows));
+                observer.complete();
+            });
+        });
+    }
+
+    /**
      * @private
      * Process the rows from the database into TeamMatch instances.
      * @param rows - The rows that were returned by the query.
@@ -197,12 +211,18 @@ export class TeamMatchesService {
      * @param {string} teamLetter - The letter of the team.
      * @returns {Observable<Array<TeamMatch>>} An array with team objects for a club in TabT.
      */
-    getAllFromTabT(clubId: string, team: Team): Observable<Array<TeamMatch>> {
+    getAllFromTabT(clubId: string, team: Team, divisionId: number): Observable<Array<TeamMatch>> {
         let params: URLSearchParams = new URLSearchParams();
         params.set("action", "GetMatches");
-        params.set("Club", clubId);
-        params.set("DivisionId", team.divisionId.toString());
-        params.set("Team", team.team)
+
+        // Get for a specific team, otherwise for the entire division
+        if (typeof divisionId === undefined) {
+            params.set("Club", clubId);
+            params.set("Team", team.team);
+            params.set("DivisionId", team.divisionId.toString());
+        } else {
+            params.set("DivisionId", divisionId.toString());
+        }
 
         let requestOptions = new RequestOptions({
             search: params
@@ -214,9 +234,9 @@ export class TeamMatchesService {
 
             jsonResponse.TeamMatchesEntries.forEach((matchEntry) => {
                 teams.push(new TeamMatch(
-                    team.divisionId,
+                    divisionId || team.divisionId,
                     matchEntry.MatchId,
-                    team.teamId,
+                    typeof divisionId !== undefined ? "" : team.teamId,
                     matchEntry.WeekName,
                     matchEntry.Date,
                     matchEntry.Time,
@@ -239,11 +259,12 @@ export class TeamMatchesService {
      * Imports the data from the TabT api.
      * @param {string} clubId - The unique identifier of the club the team belongs to.
      * @param {Team} team - The team to get the matches for.
+     * @param {number} divisionId - The division id to get the matches for.
      * @returns {Observable<Array<TeamMatch>>} The result data for the import.
      */
-    importFromTabT(clubId: string, team: Team): Observable<Array<TeamMatch>> {
+    importFromTabT(clubId: string, team: Team, divisionId: number): Observable<Array<TeamMatch>> {
         return new Observable<Array<TeamMatch>>((observer) => {
-            this.getAllFromTabT(clubId, team).subscribe((matches) => {
+            this.getAllFromTabT(clubId, team, divisionId).subscribe((matches) => {
                 matches.forEach((match) => {
                     this.save(match).subscribe(() => {
                         observer.next(matches);

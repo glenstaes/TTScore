@@ -1,0 +1,27 @@
+<ActionBar title='{{ currentTeam?.divisionName }}' class="action-bar">
+    <ActionItem [nsRouterLink]="['/home']" text="Home" android.systemIcon="ic_menu_home"></ActionItem>
+</ActionBar>
+<ScrollView class="page">
+    <GridLayout cols="auto, *, auto" rows="auto">
+        <Image col="0" src="res://left_arrow.png"></Image>
+        <Label col="1" class="h3" text="Week {{ currentWeek }}"></Label>
+        <Image col="2" src="res://right_arrow.png"></Image>
+    </GridLayout>
+    <ListView #matchesListView [items]="matches" class="list-group">
+        <ng-template let-item="item">
+            <GridLayout columns="*, auto, *" rows="auto, auto" orientation="horizontal" class="p-10">
+                <Label class="h3" text="Week {{ item.weekName }}"></Label>
+                <Label row="1" [text]="item.homeTeam"></Label>
+
+                <!-- Show either score or match date in the center -->
+                <Label row="1" col="1" *ngIf="item.score !== ''" class="h2" [text]="item.score"></Label>
+                <StackLayout row="1" col="1" *ngIf="item.score === ''">
+                    <Label [text]="item.matchDate"></Label>
+                    <Label [text]="item.matchTime"></Label>
+                </StackLayout>
+
+                <Label row="1" col="2" class="textright" [text]="item.awayTeam"></Label>
+            </GridLayout>
+        </ng-template>
+    </ListView>
+</ScrollView>

@@ -8,6 +8,7 @@ import { MembersComponent } from "./members/members.component";
 import { ImportComponent } from "./import/import.component";
 import { RankingComponent } from "./rankings/ranking.component";
 import { TeamMatchesComponent } from "./teams/matches/teammatches.component";
+import { DivisionMatchesComponent } from "./teams/matches/divisionmatches.component";
 import { FavoritesComponent } from "./teams/favorites/favorites.component";
 
 const routes: Routes = [
@@ -18,6 +19,7 @@ const routes: Routes = [
     { path: "import", component: ImportComponent },
     { path: "ranking", component: RankingComponent },
     { path: "teammatches", component: TeamMatchesComponent },
+    { path: "divisionmatches", component: DivisionMatchesComponent },
     { path: "favorites", component: FavoritesComponent }
 ];
 

@@ -20,6 +20,7 @@ import { ImportComponent } from "./import/import.component";
 import { MembersComponent } from "./members/members.component";
 import { RankingComponent } from "./rankings/ranking.component";
 import { TeamMatchesComponent } from "./teams/matches/teammatches.component";
+import { DivisionMatchesComponent } from "./teams/matches/divisionmatches.component";
 import { FavoritesComponent } from "./teams/favorites/favorites.component";
 
 @NgModule({
@@ -39,6 +40,7 @@ import { FavoritesComponent } from "./teams/favorites/favorites.component";
         MembersComponent,
         RankingComponent,
         TeamMatchesComponent,
+        DivisionMatchesComponent,
         FavoritesComponent
     ],
     providers: [

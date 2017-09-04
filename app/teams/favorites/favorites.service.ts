@@ -39,6 +39,9 @@ export class FavoritesService {
      * @returns {Observable<Team>} The team to get from the database.
      */
     get(team: Team) {
+        if(typeof(team) === "undefined")
+            return Observable.empty();
+
         return new Observable<Team>((observer) => {
             this.db.all(`SELECT * FROM teamfavorites WHERE teamId = ?`, [team.teamId]).subscribe((rows) => {
                 this._processTeamFavoritesFromDatabase(rows).subscribe((favorites) => {
@@ -83,9 +86,9 @@ export class FavoritesService {
      * @returns {Observable<boolean>} True or false in an observable whether the team exists.
      */
     exists(team: Team): Observable<boolean> {
-        return new Observable((observer) => {
+        return new Observable<boolean>((observer) => {
             this.get(team).subscribe((team) => {
-                observer.next(typeof team === "undefined" ? false : true);
+                observer.next(typeof team !== "undefined");
                 observer.complete();
             });
         });
