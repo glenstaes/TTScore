@@ -55,6 +55,13 @@ export class TeamMatchesComponent {
             });
         });
     }
+    /**
+     * Fired when the refresh icon is tapped. Resets the ranking entries array and loads the data from the TabT api.
+     */
+    onTapRefreshIcon() {
+        this.matches = [];
+        this._loadFromTabT();
+    }
 
     /**
      * @private

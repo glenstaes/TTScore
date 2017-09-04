@@ -123,7 +123,7 @@ export class TeamMatchesService {
         return new Observable<boolean>((observer) => {
             this.db.execSQL(`UPDATE matches 
                                 SET weekName = ?, date = ?, time = ?, venue = ?, homeClubId = ?, homeTeam = ?, awayClubId = ?, awayTeam = ?, isHomeForfeited = ?, isAwayForfeited = ?, score = ?
-                                WHERE matchNumber = ? AND divisionId = ?`,
+                                WHERE matchId = ? AND divisionId = ?`,
                 [
                     match.weekName,
                     match.date,

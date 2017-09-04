@@ -1,7 +1,9 @@
-<ActionBar title='{{ currentTeam?.divisionName }}' class="action-bar">
+<ActionBar title='{{ currentTeam?.divisionCategoryName }} {{ currentTeam?.team }}' class="action-bar">
     <ActionItem [nsRouterLink]="['/home']" text="Home" android.systemIcon="ic_menu_home"></ActionItem>
+    <ActionItem text="Refresh" android.systemIcon="ic_popup_sync_6" (tap)="onTapRefreshIcon()"></ActionItem>
 </ActionBar>
 <StackLayout class="page">
+    <Label class="p-10" [text]="currentTeam?.divisionName"></Label>
     <ListView #rankingListView [items]="matches" class="list-group">
         <ng-template let-item="item">
             <GridLayout columns="*, auto, *" rows="auto, auto" orientation="horizontal" class="p-10">
