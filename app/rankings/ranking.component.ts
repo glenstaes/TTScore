@@ -41,10 +41,8 @@ export class RankingComponent {
 
             // When the team is retrieved, we can start to retrieve the ranking entries
             this._rankingsService.getAllByDivision(this.currentTeam.divisionId).subscribe((rankingEntries) => {
-                if(rankingEntries.length === 0){
-                    this._rankingsService.importFromTabT(this.currentTeam.divisionId).subscribe((importedRankingEntries) => {
-                        this.rankingEntries = importedRankingEntries;
-                    });
+                if (rankingEntries.length === 0) {
+                    this._loadFromTabT();
                 } else {
                     this.rankingEntries = rankingEntries;
                 }
@@ -56,7 +54,25 @@ export class RankingComponent {
      * Sets an item as the currently selected item.
      * @param {any} eventData - The event data of the tap event
      */
-    onTapRankingItem(eventData){
+    onTapRankingItem(eventData) {
         this.activePosition = eventData.index + 1;
+    }
+
+    /**
+     * Fired when the refresh icon is tapped. Resets the ranking entries array and loads the data from the TabT api.
+     */
+    onTapRefreshIcon() {
+        this.rankingEntries = [];
+        this._loadFromTabT();
+    }
+
+    /**
+     * @private
+     * Loads the data from the TabT api and displays the data.
+     */
+    private _loadFromTabT() {
+        this._rankingsService.importFromTabT(this.currentTeam.divisionId).subscribe((importedRankingEntries) => {
+            this.rankingEntries = importedRankingEntries;
+        });
     }
 }
