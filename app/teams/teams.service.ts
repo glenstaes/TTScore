@@ -194,14 +194,11 @@ export class TeamsService {
                     observer.next(teams);
                     observer.complete();
                 } else {
-                    const teamSaveObservables = [];
                     teams.forEach((team) => {
-                        teamSaveObservables.push(this.save(team, clubId, seasonId));
-                    });
-
-                    Observable.forkJoin(...teamSaveObservables).subscribe((savedTeams) => {
-                        observer.next(teams);
-                        observer.complete();
+                        this.save(team, clubId, seasonId).subscribe(() => {
+                            observer.next(teams);
+                            observer.complete();
+                        });
                     });
                 }
             });

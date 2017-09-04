@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, NgZone } from "@angular/core";
 import { SeasonsService } from "../seasons/seasons.service";
 import { Season } from "../seasons/season.model";
 import { ClubsService } from "../clubs/clubs.service";
@@ -54,10 +54,11 @@ export class HomeComponent implements OnInit {
      * @param {SeasonsService} _seasonsService - The service to work with seasons.
      */
     constructor(
-        private _seasonsService: SeasonsService, 
+        private _seasonsService: SeasonsService,
         private _clubsService: ClubsService,
         private _teamsService: TeamsService,
-        private _favoritesService: FavoritesService
+        private _favoritesService: FavoritesService,
+        private _ngZone: NgZone
     ) {
 
     }
@@ -81,13 +82,19 @@ export class HomeComponent implements OnInit {
 
             // Load the teams for the club
             this._teamsService.getAllByClub(this.currentClub, this.currentSeason).subscribe((teams) => {
-                if(teams.length === 0){
+                if (teams.length === 0) {
                     // Import if still not found
-                    this._teamsService.importFromTabT(this.currentClub.uniqueIndex, this.currentSeason.id).subscribe((importedTeams) => {
-                        this.allTeams = importedTeams;
-                        if(this.allTeams.length === 0){
-                            this.onChangeTeam({ value: 0 });
-                        }
+                    this._ngZone.runOutsideAngular(() => {
+                        this._ngZone.runOutsideAngular(() => {
+                            this._teamsService.importFromTabT(this.currentClub.uniqueIndex, this.currentSeason.id).subscribe((importedTeams) => {
+                                this._ngZone.run(() => {
+                                    this.allTeams = importedTeams;
+                                    if (this.allTeams.length === 0) {
+                                        this.onChangeTeam({ value: 0 });
+                                    }
+                                });
+                            });
+                        });
                     });
                 } else {
                     this.allTeams = teams;
@@ -97,7 +104,7 @@ export class HomeComponent implements OnInit {
                 const filteredTeams = this.allTeams.filter((team) => {
                     return team.teamId === this.currentTeam.teamId;
                 });
-                if(filteredTeams.length){
+                if (filteredTeams.length) {
                     this.selectedTeamIndex = this.allTeams.indexOf(filteredTeams[0]);
                 } else {
                     this.selectedTeamIndex = 0;
@@ -110,7 +117,7 @@ export class HomeComponent implements OnInit {
      * This callback is fired when the selection of a team changes in the UI
      * @param {$event} event - The event data
      */
-    onChangeTeam(event){
+    onChangeTeam(event) {
         this.currentTeam = this.allTeams[event.value];
         appSettings.setString(CURRENT_SELECTED_TEAM_KEY, this.currentTeam.teamId);
 
@@ -120,7 +127,7 @@ export class HomeComponent implements OnInit {
     /**
      * Checks if the current team is a favorite team. Sets the boolean property after checking.
      */
-    private _checkTeamIsFavorite(){
+    private _checkTeamIsFavorite() {
         this._favoritesService.exists(this.currentTeam).subscribe((exists) => {
             this.currentTeamIsFavorite = exists;
         });
@@ -129,7 +136,7 @@ export class HomeComponent implements OnInit {
     /**
      * Callback for when the button to add a team as favorite is tapped. Adds the team as favorite.
      */
-    onTapAddAsFavorite(){
+    onTapAddAsFavorite() {
         this._favoritesService.add(this.currentTeam, this.currentClub.uniqueIndex, this.currentSeason.id).subscribe((isAdded) => {
             this.currentTeamIsFavorite = isAdded;
         });
@@ -138,7 +145,7 @@ export class HomeComponent implements OnInit {
     /**
      * Callback for when the button to remove a team as favorite is tapped. Removes the team as favorite.
      */
-    onTapRemoveAsFavorite(){
+    onTapRemoveAsFavorite() {
         this._favoritesService.delete(this.currentTeam).subscribe((isRemoved) => {
             this.currentTeamIsFavorite = !isRemoved;
         });
