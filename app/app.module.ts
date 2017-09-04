@@ -9,6 +9,7 @@ import { ClubsService } from "./clubs/clubs.service";
 import { ClubMemberService } from "./members/clubmember.service";
 import { TeamsService } from "./teams/teams.service";
 import { TeamMatchesService } from "./teams/matches/teammatches.service";
+import { FavoritesService } from "./teams/favorites/favorites.service";
 import { DatabaseService } from "./database/database.service";
 import { TabTImportService } from "./tabt/TabTImport.service";
 import { DivisionRankingService } from "./rankings/DivisionRanking.service";
@@ -43,6 +44,7 @@ import { TeamMatchesComponent } from "./teams/matches/teammatches.component";
         ClubMemberService,
         TeamsService,
         TeamMatchesService,
+        FavoritesService,
         DatabaseService,
         SeasonsService,
         TabTImportService,

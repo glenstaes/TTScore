@@ -1,16 +1,20 @@
 <ActionBar title='Home - {{ currentClub?.longName }}' class="action-bar">
     <ActionItem [nsRouterLink]="['/settings']" text="Instellingen" android.systemIcon="ic_menu_preferences"></ActionItem>
 </ActionBar>
-<StackLayout class="p-10 page">
-    <Label *ngIf="!currentClub" [text]="noClubLabel"></Label>
-    <StackLayout *ngIf="currentClub">
-        <Button *ngIf="currentClub" [nsRouterLink]="['/members']" text="Spelers van {{ currentClub?.longName }}"></Button>
-        <Label *ngIf="!allTeams.length" [text]="noTeamsLabel"></Label>
-        <ListPicker *ngIf="allTeams.length" [items]="allTeams" [selectedIndex]="selectedTeamIndex" (selectedIndexChange)="onChangeTeam($event)"></ListPicker>
+<ScrollView>
+    <StackLayout class="p-10 page">
+        <Label *ngIf="!currentClub" [text]="noClubLabel"></Label>
+        <StackLayout *ngIf="currentClub">
+            <Button *ngIf="currentClub" [nsRouterLink]="['/members']" text="Spelers van {{ currentClub?.longName }}"></Button>
+            <Label *ngIf="!allTeams.length" [text]="noTeamsLabel"></Label>
+            <ListPicker *ngIf="allTeams.length" [items]="allTeams" [selectedIndex]="selectedTeamIndex" (selectedIndexChange)="onChangeTeam($event)"></ListPicker>
 
-        <StackLayout *ngIf="currentTeam">
-            <Button [nsRouterLink]="['/ranking']" text="Rangschikking"></Button>
-            <Button [nsRouterLink]="['/teammatches']" text="Team wedstrijden"></Button>
+            <StackLayout *ngIf="currentTeam">
+                <Button [nsRouterLink]="['/ranking']" text="Rangschikking"></Button>
+                <Button [nsRouterLink]="['/teammatches']" text="Team wedstrijden"></Button>
+                <Button *ngIf="!currentTeamIsFavorite" (tap)="onTapAddAsFavorite()" class="addToFavorites" text="Voeg toe aan favorieten"></Button>
+                <Button *ngIf="currentTeamIsFavorite" (tap)="onTapRemoveAsFavorite()" class="removeFromFavorites" text="Verwijder uit favorieten"></Button>
+            </StackLayout>
         </StackLayout>
     </StackLayout>
-</StackLayout>
+</ScrollView>
