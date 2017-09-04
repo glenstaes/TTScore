@@ -33,7 +33,7 @@ export class ClubsService {
      */
     getAll() {
         return new Observable<Club[]>((observer) => {
-            this.db.all(`SELECT * FROM clubs`).subscribe((rows) => {
+            this.db.all(`SELECT * FROM clubs ORDER BY uniqueId`).subscribe((rows) => {
                 observer.next(this._processClubsFromDatabase(rows));
                 observer.complete();
             });
@@ -47,7 +47,7 @@ export class ClubsService {
      */
     getAllBySeason(seasonId) {
         return new Observable<Club[]>((observer) => {
-            this.db.all(`SELECT * FROM clubs WHERE seasonId = ?`, [seasonId]).subscribe((rows) => {
+            this.db.all(`SELECT * FROM clubs WHERE seasonId = ? ORDER BY uniqueId`, [seasonId]).subscribe((rows) => {
                 observer.next(this._processClubsFromDatabase(rows));
                 let clubs = [];
 
