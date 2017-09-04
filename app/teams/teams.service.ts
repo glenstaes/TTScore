@@ -190,12 +190,20 @@ export class TeamsService {
     importFromTabT(clubId: string, seasonId: number): Observable<Array<Team>> {
         return new Observable<Array<Team>>((observer) => {
             this.getAllFromTabT(clubId, seasonId).subscribe((teams) => {
-                teams.forEach((team) => {
-                    this.save(team, clubId, seasonId).subscribe(() => {
+                if(teams.length === 0){
+                    observer.next(teams);
+                    observer.complete();
+                } else {
+                    const teamSaveObservables = [];
+                    teams.forEach((team) => {
+                        teamSaveObservables.push(this.save(team, clubId, seasonId));
+                    });
+
+                    Observable.forkJoin(...teamSaveObservables).subscribe((savedTeams) => {
                         observer.next(teams);
                         observer.complete();
                     });
-                });
+                }
             });
         });
     }

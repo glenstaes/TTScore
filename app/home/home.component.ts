@@ -85,6 +85,9 @@ export class HomeComponent implements OnInit {
                     // Import if still not found
                     this._teamsService.importFromTabT(this.currentClub.uniqueIndex, this.currentSeason.id).subscribe((importedTeams) => {
                         this.allTeams = importedTeams;
+                        if(this.allTeams.length === 0){
+                            this.onChangeTeam({ value: 0 });
+                        }
                     });
                 } else {
                     this.allTeams = teams;
