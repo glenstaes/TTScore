@@ -107,7 +107,7 @@ export class ClubMemberService {
      */
     private _update(member: ClubMember, clubId: string, seasonId: number) {
         return new Observable<boolean>((observer) => {
-            this.db.execSQL(`UPDATE clubs SET position = ?, rankingIndex = ?, firstName = ?, lastName = ?, ranking = ?, clubId = ? WHERE seasonId = ? AND uniqueIndex = ?`,
+            this.db.execSQL(`UPDATE clubmembers SET position = ?, rankingIndex = ?, firstName = ?, lastName = ?, ranking = ?, clubId = ? WHERE seasonId = ? AND uniqueIndex = ?`,
                 [member.position, member.rankingIndex, member.firstName, member.lastName, member.ranking, clubId, seasonId, member.uniqueIndex]).subscribe((rows) => {
                     observer.next(rows ? true : false);
                     observer.complete();

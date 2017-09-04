@@ -2,6 +2,7 @@ import { Component, ViewChild } from "@angular/core";
 import { Observable } from "rxjs/Rx";
 
 import { SeasonsService } from "../seasons/seasons.service";
+import { Season } from "../seasons/season.model";
 import { Club } from "../clubs/club.model";
 import { ClubsService } from "../clubs/clubs.service";
 import { ClubMember } from "../members/ClubMember.model";
@@ -21,6 +22,7 @@ let appSettings = require("application-settings");
 
 export class MembersComponent {
     currentClub: Club;
+    currentSeason: Season;
     members: Array<ClubMember> = [];
 
     /**
@@ -44,16 +46,33 @@ export class MembersComponent {
             this._seasonsService.get(appSettings.getNumber(CURRENT_SELECTED_SEASON_KEY))
         ).subscribe((responses) => {
             this.currentClub = responses[0];
+            this.currentSeason = responses[1];
 
-            this._clubMembersService.getAllByClub(this.currentClub, responses[1]).subscribe((members) => {
+            this._clubMembersService.getAllByClub(this.currentClub, this.currentSeason).subscribe((members) => {
                 if(members.length === 0){
-                    this._clubMembersService.importFromTabT(this.currentClub.uniqueIndex, responses[1].id).subscribe((importedMembers) => {
-                        this.members = importedMembers;
-                    });
+                    this._loadFromTabT();
                 } else {
                     this.members = members;
                 }
             });
+        });
+    }
+
+    /**
+     * Fired when the refresh icon is tapped. Resets the members array and loads the data from the TabT api.
+     */
+    onTapRefreshIcon() {
+        this.members = [];
+        this._loadFromTabT();
+    }
+
+    /**
+     * @private
+     * Loads the data from the TabT api and displays the data.
+     */
+    private _loadFromTabT() {
+        this._clubMembersService.importFromTabT(this.currentClub.uniqueIndex, this.currentSeason.id).subscribe((importedMembers) => {
+            this.members = importedMembers;
         });
     }
 }

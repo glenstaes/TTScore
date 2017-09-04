@@ -1,6 +1,6 @@
 <ActionBar title='{{ currentClub?.longName }} - Spelers' class="action-bar">
     <ActionItem [nsRouterLink]="['/home']" text="Home" android.systemIcon="ic_menu_home"></ActionItem>
-    <ActionItem [nsRouterLink]="['/settings']" text="Instellingen" android.systemIcon="ic_menu_preferences"></ActionItem>
+    <ActionItem text="Refresh" android.systemIcon="ic_popup_sync_6" (tap)="onTapRefreshIcon()"></ActionItem>
 </ActionBar>
 <StackLayout class="page">
     <ListView #membersListView [items]="members" class="list-group">
