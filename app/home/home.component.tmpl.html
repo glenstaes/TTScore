@@ -1,5 +1,6 @@
 <ActionBar title='Home - {{ currentClub?.longName }}' class="action-bar">
     <ActionItem [nsRouterLink]="['/settings']" text="Instellingen" android.systemIcon="ic_menu_preferences"></ActionItem>
+    <ActionItem [nsRouterLink]="['/favorites']" text="Favorieten" icon="res://star_on"></ActionItem>
 </ActionBar>
 <ScrollView>
     <StackLayout class="p-10 page">

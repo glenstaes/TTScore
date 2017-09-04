@@ -8,6 +8,7 @@ import { MembersComponent } from "./members/members.component";
 import { ImportComponent } from "./import/import.component";
 import { RankingComponent } from "./rankings/ranking.component";
 import { TeamMatchesComponent } from "./teams/matches/teammatches.component";
+import { FavoritesComponent } from "./teams/favorites/favorites.component";
 
 const routes: Routes = [
     { path: "", redirectTo: "/home", pathMatch: "full" },
@@ -16,7 +17,8 @@ const routes: Routes = [
     { path: "settings", component: SettingsComponent },
     { path: "import", component: ImportComponent },
     { path: "ranking", component: RankingComponent },
-    { path: "teammatches", component: TeamMatchesComponent }
+    { path: "teammatches", component: TeamMatchesComponent },
+    { path: "favorites", component: FavoritesComponent }
 ];
 
 @NgModule({

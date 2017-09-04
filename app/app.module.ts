@@ -20,6 +20,7 @@ import { ImportComponent } from "./import/import.component";
 import { MembersComponent } from "./members/members.component";
 import { RankingComponent } from "./rankings/ranking.component";
 import { TeamMatchesComponent } from "./teams/matches/teammatches.component";
+import { FavoritesComponent } from "./teams/favorites/favorites.component";
 
 @NgModule({
     bootstrap: [
@@ -37,7 +38,8 @@ import { TeamMatchesComponent } from "./teams/matches/teammatches.component";
         ImportComponent,
         MembersComponent,
         RankingComponent,
-        TeamMatchesComponent
+        TeamMatchesComponent,
+        FavoritesComponent
     ],
     providers: [
         ClubsService,

@@ -5,6 +5,8 @@ import { Observable } from "rxjs/Rx";
 import { DatabaseService } from "../../database/database.service";
 import { Team } from "../team.model";
 import { TeamsService } from "../teams.service";
+import { Club } from "../../clubs/club.model";
+import { ClubsService } from "../../clubs/clubs.service";
 
 @Injectable()
 /**
@@ -15,7 +17,12 @@ export class FavoritesService {
      * Creates a new instance of the service.
      * @param {DatabaseService} db - The database service for working with the database
      */
-    constructor(private db: DatabaseService, private http: Http, private _teamsService: TeamsService) {
+    constructor(
+        private db: DatabaseService, 
+        private http: Http, 
+        private _teamsService: TeamsService,
+        private _clubsService: ClubsService
+    ) {
         this._ensureTable();
     }
 
@@ -29,13 +36,28 @@ export class FavoritesService {
     /**
      * Gets a favorite team from the database.
      * @param {Team} team - The team to get the favorite for from the database
-     * @returns {Observable<TeamMatch>} The match to get from the database.
+     * @returns {Observable<Team>} The team to get from the database.
      */
     get(team: Team) {
         return new Observable<Team>((observer) => {
             this.db.all(`SELECT * FROM teamfavorites WHERE teamId = ?`, [team.teamId]).subscribe((rows) => {
                 this._processTeamFavoritesFromDatabase(rows).subscribe((favorites) => {
                     observer.next(favorites.length ? favorites[0] : undefined);
+                    observer.complete();
+                });
+            });
+        });
+    }
+
+    /**
+     * Gets all the teams that have been set as favorite.
+     * @returns {Observable<Array<Team>>} The teams that have been set as a favorite.
+     */
+    getAll(){
+        return new Observable<Array<Team>>((observer) => {
+            this.db.all(`SELECT * FROM teamfavorites`).subscribe((rows) => {
+                this._processTeamFavoritesFromDatabase(rows).subscribe((favorites) => {
+                    observer.next(favorites);
                     observer.complete();
                 });
             });
@@ -99,17 +121,27 @@ export class FavoritesService {
         }
 
         return Observable.create((observer) => {
-            const teamsToLoad = rows.length;
-            let teamLoadObservables: Array<Observable<Team>> = [];
+            let teamLoadObservables: Array<Observable<[Team, Club]>> = [];
 
             // Get the observable for each fetch of the row
             rows.forEach((row) => {
-                teamLoadObservables.push(this._teamsService.get(row[2]))
+                teamLoadObservables.push(Observable.forkJoin(
+                    this._teamsService.get(row[2]),
+                    this._clubsService.get(row[1], row[0])
+                ));
             });
 
-            // The results parameter will contain all resolved team instances.
+            // The results parameter will contain all resolved forkjoin with team and club instances.
             Observable.forkJoin(...teamLoadObservables).subscribe((results) => {
-                observer.next(results);
+                let teams = [];
+
+                results.forEach((result) => {
+                    const team = result[0];
+                    team.parentClub = result[1];
+                    teams.push(team);
+                });
+
+                observer.next(teams);
                 observer.complete();
             });
         });

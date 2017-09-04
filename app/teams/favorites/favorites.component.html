@@ -1,0 +1,13 @@
+<ActionBar title='Favorieten' class="action-bar">
+    <ActionItem [nsRouterLink]="['/home']" text="Home" android.systemIcon="ic_menu_home"></ActionItem>
+</ActionBar>
+<StackLayout class="page">
+    <Label class="p-10" *ngIf="!favorites.length" [text]="noFavorites"></Label>
+    <ListView *ngIf="favorites.length" #favoritesListView [items]="favorites" class="list-group">
+        <ng-template let-item="item">
+            <StackLayout class="p-10">
+                <Label class="h3" text="{{ item.parentClub.name }} {{ item.team }} - {{ item.divisionCategoryName }}"></Label>
+            </StackLayout>
+        </ng-template>
+    </ListView>
+</StackLayout>

@@ -1,3 +1,4 @@
+import { Club } from "../clubs/club.model";
 /**
  * This class represents a team.
  * @property {string} teamId - The unique identifier of the team.
@@ -5,8 +6,11 @@
  * @property {number} divisionId - The id of the division in which the team plays.
  * @property {string} divisionName - The name of the division in which the team plays.
  * @property {number} divisionCategoryId - The id of the category of the division.
+ * @property {Club} parentClub - Contains a reference to the parent club of the team.
  */
 export class Team {
+    public parentClub: Club;
+
     constructor(
         public teamId: string,
         public team: string,
