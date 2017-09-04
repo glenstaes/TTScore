@@ -8,6 +8,7 @@ import { SeasonsService } from "./seasons/seasons.service";
 import { ClubsService } from "./clubs/clubs.service";
 import { ClubMemberService } from "./members/clubmember.service";
 import { TeamsService } from "./teams/teams.service";
+import { TeamMatchesService } from "./teams/matches/teammatches.service";
 import { DatabaseService } from "./database/database.service";
 import { TabTImportService } from "./tabt/TabTImport.service";
 import { DivisionRankingService } from "./rankings/DivisionRanking.service";
@@ -17,6 +18,7 @@ import { SettingsComponent } from "./settings/settings.component";
 import { ImportComponent } from "./import/import.component";
 import { MembersComponent } from "./members/members.component";
 import { RankingComponent } from "./rankings/ranking.component";
+import { TeamMatchesComponent } from "./teams/matches/teammatches.component";
 
 @NgModule({
     bootstrap: [
@@ -33,12 +35,14 @@ import { RankingComponent } from "./rankings/ranking.component";
         SettingsComponent,
         ImportComponent,
         MembersComponent,
-        RankingComponent
+        RankingComponent,
+        TeamMatchesComponent
     ],
     providers: [
         ClubsService,
         ClubMemberService,
         TeamsService,
+        TeamMatchesService,
         DatabaseService,
         SeasonsService,
         TabTImportService,
