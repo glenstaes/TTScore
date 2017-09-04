@@ -85,14 +85,12 @@ export class HomeComponent implements OnInit {
                 if (teams.length === 0) {
                     // Import if still not found
                     this._ngZone.runOutsideAngular(() => {
-                        this._ngZone.runOutsideAngular(() => {
-                            this._teamsService.importFromTabT(this.currentClub.uniqueIndex, this.currentSeason.id).subscribe((importedTeams) => {
-                                this._ngZone.run(() => {
-                                    this.allTeams = importedTeams;
-                                    if (this.allTeams.length === 0) {
-                                        this.onChangeTeam({ value: 0 });
-                                    }
-                                });
+                        this._teamsService.importFromTabT(this.currentClub.uniqueIndex, this.currentSeason.id).subscribe((importedTeams) => {
+                            this._ngZone.run(() => {
+                                this.allTeams = importedTeams;
+                                if (this.allTeams.length === 0) {
+                                    this.onChangeTeam({ value: 0 });
+                                }
                             });
                         });
                     });
