@@ -68,8 +68,8 @@ export class TeamMatchesComponent {
      * Loads the data from the TabT api and displays the data.
      */
     private _loadFromTabT() {
-        // null as third parameter makes sure that only team matches are retrieved
-        this._matchesService.importFromTabT(appSettings.getString(CURRENT_SELECTED_CLUB_KEY), this.currentTeam, null).subscribe((matches) => {
+        // undefined as third parameter makes sure that only team matches are retrieved
+        this._matchesService.importFromTabT(appSettings.getString(CURRENT_SELECTED_CLUB_KEY), this.currentTeam, undefined).subscribe((matches) => {
             this.matches = matches;
         });
     }

@@ -216,7 +216,7 @@ export class TeamMatchesService {
         params.set("action", "GetMatches");
 
         // Get for a specific team, otherwise for the entire division
-        if (typeof divisionId === undefined) {
+        if (typeof divisionId === "undefined") {
             params.set("Club", clubId);
             params.set("Team", team.team);
             params.set("DivisionId", team.divisionId.toString());
