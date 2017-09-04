@@ -1,0 +1,25 @@
+<ActionBar title='{{ currentTeam?.divisionName }}' class="action-bar">
+    <ActionItem [nsRouterLink]="['/home']" text="Home" android.systemIcon="ic_menu_home"></ActionItem>
+</ActionBar>
+<StackLayout class="page">
+    <ListView #rankingListView [items]="rankingEntries" class="list-group" (itemTap)="onTapRankingItem($event)">
+        <ng-template let-item="item">
+            <GridLayout columns="30, *, 40" rows="auto, auto" orientation="horizontal" class="p-10">
+                <StackLayout col="0">
+                    <Label class="h3" text="{{ item.position }}"></Label>
+                </StackLayout>
+                <StackLayout col="1">
+                    <Label class="h3" [text]="item.teamName"></Label>
+                </StackLayout>
+                <StackLayout col="2">
+                    <Label class="h3" [text]="item.points"></Label>
+                </StackLayout>
+                <StackLayout *ngIf="activePosition === item.position" col="1" row="1">
+                    <Label text="Wedstrijden gewonnen: {{ item.gamesWon }}"></Label>
+                    <Label text="Wedstrijden verloren: {{ item.gamesLost }}"></Label>
+                    <Label text="Wedstrijden gelijk: {{ item.gamesDraw }}"></Label>
+                </StackLayout>
+            </GridLayout>
+        </ng-template>
+    </ListView>
+</StackLayout>

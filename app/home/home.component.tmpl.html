@@ -9,7 +9,7 @@
         <ListPicker *ngIf="allTeams.length" [items]="allTeams" [selectedIndex]="selectedTeamIndex" (selectedIndexChange)="onChangeTeam($event)"></ListPicker>
 
         <StackLayout *ngIf="currentTeam">
-
+            <Button [nsRouterLink]="['/ranking']" text="Rangschikking"></Button>
         </StackLayout>
     </StackLayout>
 </StackLayout>

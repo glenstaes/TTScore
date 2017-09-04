@@ -10,11 +10,13 @@ import { ClubMemberService } from "./members/clubmember.service";
 import { TeamsService } from "./teams/teams.service";
 import { DatabaseService } from "./database/database.service";
 import { TabTImportService } from "./tabt/TabTImport.service";
+import { DivisionRankingService } from "./rankings/DivisionRanking.service";
 
 import { HomeComponent } from "./home/home.component";
 import { SettingsComponent } from "./settings/settings.component";
 import { ImportComponent } from "./import/import.component";
 import { MembersComponent } from "./members/members.component";
+import { RankingComponent } from "./rankings/ranking.component";
 
 @NgModule({
     bootstrap: [
@@ -30,7 +32,8 @@ import { MembersComponent } from "./members/members.component";
         HomeComponent,
         SettingsComponent,
         ImportComponent,
-        MembersComponent
+        MembersComponent,
+        RankingComponent
     ],
     providers: [
         ClubsService,
@@ -38,7 +41,8 @@ import { MembersComponent } from "./members/members.component";
         TeamsService,
         DatabaseService,
         SeasonsService,
-        TabTImportService
+        TabTImportService,
+        DivisionRankingService
     ],
     schemas: [
         NO_ERRORS_SCHEMA
