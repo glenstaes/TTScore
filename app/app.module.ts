@@ -1,6 +1,7 @@
 import { NgModule, NO_ERRORS_SCHEMA } from "@angular/core";
 import { NativeScriptHttpModule } from "nativescript-angular/http";
 import { NativeScriptModule } from "nativescript-angular/nativescript.module";
+import { NativeScriptFormsModule } from "nativescript-angular/forms";
 import { AppRoutingModule } from "./app.routing";
 import { AppComponent } from "./app.component";
 
@@ -30,6 +31,7 @@ import { FavoritesComponent } from "./teams/favorites/favorites.component";
     ],
     imports: [
         NativeScriptModule,
+        NativeScriptFormsModule,
         AppRoutingModule,
         NativeScriptHttpModule
     ],

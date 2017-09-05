@@ -1,5 +1,6 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, ViewChild, OnInit } from "@angular/core";
 import { ListPicker } from "ui/list-picker";
+import { TextField } from "ui/text-field";
 
 import { Season } from "../seasons/season.model";
 import { SeasonsService } from "../seasons/seasons.service";
@@ -23,7 +24,9 @@ export class SettingsComponent implements OnInit {
     public seasonIndex: number;
     public clubIndex: number;
     public allClubs: Club[];
+    public filteredClubs: Club[];
     public allSeasons: Season[];
+    public searchClubText: string = "";
 
     /**
      * Creates a new intance of the component
@@ -113,6 +116,32 @@ export class SettingsComponent implements OnInit {
             if (clubsImportResult.completed) {
                 this.allClubs = clubsImportResult.clubs;
             }
+        });
+    }
+
+    /**
+     * Fired when the user taps a club in the list. Sets this club as the configured club and resets the search.
+     * @param {any} eventData - The event data
+     * @param {TextField} searchClubField - A reference to the text field where the search value was typed
+     */
+    onTapClub(eventData, searchClubField){
+        let club = this.filteredClubs[eventData.index];
+        this.searchClubText = "";
+        searchClubField.dismissSoftInput();
+
+        this._settingsService.currentClub = club;
+        this.clubIndex = this._findClubIndexInCurrentSeason();
+    }
+
+    /**
+     * Fired when a user types in the search club textbox.
+     * @param {any} eventData - The event data
+     */
+    onTextChangeSearchClub(eventData){
+        const textField = <TextField>eventData.object;
+
+        this.filteredClubs = this.allClubs.filter((club) => {
+            return club.toString().toLowerCase().indexOf(textField.text.toLowerCase()) > -1;
         });
     }
 }
