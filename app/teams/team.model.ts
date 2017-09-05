@@ -39,6 +39,6 @@ export class Team {
      * Prints the division category name together with the team letter and division name.
      */
     toString(){
-        return `${this.divisionCategoryName} ${this.team} - ${this.divisionName}`
+        return `${this.divisionCategoryName} ${this.team}`
     }
 }

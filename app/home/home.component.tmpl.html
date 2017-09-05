@@ -14,6 +14,7 @@
 
             <StackLayout *ngIf="currentTeam">
                 <Label class="h3" [text]="teamActions"></Label>
+                <Label [text]="currentTeam.divisionName"></Label>
                 <Button [nsRouterLink]="['/ranking']" text="Rangschikking"></Button>
                 <Button [nsRouterLink]="['/teammatches']" text="Teamwedstrijden"></Button>
                 <Button [nsRouterLink]="['/divisionmatches']" text="Afdelingswedstrijden"></Button>
