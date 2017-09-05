@@ -25,9 +25,15 @@ export class DatabaseService {
      */
     connect() {
         // Connect to the database
-        return (new Sqlite("ttscore.db")).then((db) => {
-            this.database = db;
-        });
+        if (this.database)
+            return Observable.create((observer) => {
+                observer.next(this.database);
+                observer.complete();
+            }).toPromise();
+        else
+            return (new Sqlite("ttscore.db")).then((db) => {
+                this.database = db;
+            });
     }
 
     /**
@@ -51,7 +57,7 @@ export class DatabaseService {
      * @param {string} query - The query to execute.
      * @param {Array<any>} data - The data to put in the query.
      */
-    all(query: string, data: Array<any> = []){
+    all(query: string, data: Array<any> = []) {
         return new Observable<any>((observer) => {
             this.connect().then(() => {
                 this.database.all(query, data).then((result) => {
