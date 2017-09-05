@@ -4,7 +4,7 @@ let appSettings = require("application-settings");
 
 import { FavoritesService } from "./favorites.service";
 import { Team } from "../team.model";
-import { CURRENT_SELECTED_SEASON_KEY, CURRENT_SELECTED_CLUB_KEY, CURRENT_SELECTED_TEAM_KEY } from "../../settings/appsettingskeys";
+import { SettingsService } from "../../settings/settings.service";
 
 @Component({
     templateUrl: "teams/favorites/favorites.component.html"
@@ -23,7 +23,8 @@ export class FavoritesComponent implements OnInit {
 
     constructor(
         private _favoritesService: FavoritesService,
-        private _router: Router
+        private _router: Router,
+        private _settingsService: SettingsService
     ){}
 
     ngOnInit(){
@@ -40,9 +41,9 @@ export class FavoritesComponent implements OnInit {
 
     onTapFavoriteItem(eventData){
         let favorite = this.favorites[eventData.index];
-        appSettings.setString(CURRENT_SELECTED_CLUB_KEY, favorite.parentClub.uniqueIndex);
-        appSettings.setNumber(CURRENT_SELECTED_SEASON_KEY, favorite.parentClub.seasonId);
-        appSettings.setString(CURRENT_SELECTED_TEAM_KEY, favorite.teamId);
+        this._settingsService.currentClub = favorite.parentClub;
+        this._settingsService.currentSeason = favorite.parentClub.parentSeason;
+        this._settingsService.currentTeam = favorite;
 
         this._router.navigate(["home"]);
     }

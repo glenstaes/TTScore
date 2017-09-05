@@ -8,6 +8,8 @@ import { TabTClubsImportResult } from "../tabt/TabTImport.service";
 import { DatabaseService } from "../database/database.service";
 import { Club, ClubCategory } from "./club.model";
 import { ClubVenue } from "./clubvenue.model";
+import { Season } from "../seasons/season.model";
+import { SeasonsService } from "../seasons/seasons.service";
 
 @Injectable()
 export class ClubsService {
@@ -15,7 +17,7 @@ export class ClubsService {
      * Creates a new instance of the service.
      * @param {DatabaseService} db - The database service for working with the database
      */
-    constructor(private db: DatabaseService, private http: Http) {
+    constructor(private db: DatabaseService, private http: Http, private _seasonsService: SeasonsService) {
         this._ensureTable();
     }
 
@@ -34,8 +36,10 @@ export class ClubsService {
     getAll() {
         return new Observable<Club[]>((observer) => {
             this.db.all(`SELECT * FROM clubs ORDER BY uniqueId`).subscribe((rows) => {
-                observer.next(this._processClubsFromDatabase(rows));
-                observer.complete();
+                this._processClubsFromDatabase(rows).subscribe((clubs) => {
+                    observer.next(clubs);
+                    observer.complete();
+                });
             });
         });
     }
@@ -48,16 +52,10 @@ export class ClubsService {
     getAllBySeason(seasonId) {
         return new Observable<Club[]>((observer) => {
             this.db.all(`SELECT * FROM clubs WHERE seasonId = ? ORDER BY uniqueId`, [seasonId]).subscribe((rows) => {
-                observer.next(this._processClubsFromDatabase(rows));
-                let clubs = [];
-
-                rows.forEach((row) => {
-                    // TODO(glenstaes): Fetch the category and the venues
-                    clubs.push(new Club(row[0], row[2], row[3], null, null, row[2]));
+                this._processClubsFromDatabase(rows).subscribe((clubs) => {
+                    observer.next(clubs);
+                    observer.complete();
                 });
-
-                observer.next(clubs);
-                observer.complete();
             });
         });
     }
@@ -69,14 +67,31 @@ export class ClubsService {
      * @returns {Array<Club>} An array of Club instances.
      */
     private _processClubsFromDatabase(rows) {
-        let clubs = [];
+        return Observable.create((observer) => {
+            if (rows.length === 0) {
+                observer.next([]);
+                observer.complete();
+            } else {
+                let clubs = [];
+                let loadDependenciesObservables: Array<Observable<Season>> = [];
 
-        rows.forEach((row) => {
-            // TODO(glenstaes): Fetch the category and the venues
-            clubs.push(new Club(row[0], row[2], row[3], null, null, row[1]));
+                rows.forEach((row) => {
+                    loadDependenciesObservables.push(this._seasonsService.get(row[1]));
+
+                    // TODO(glenstaes): Fetch the category and the venues
+                    clubs.push(new Club(row[0], row[2], row[3], null, null, row[1]));
+                });
+
+                Observable.forkJoin(...loadDependenciesObservables).subscribe((seasons) => {
+                    clubs.forEach((club: Club, index) => {
+                        club.parentSeason = seasons[index];
+                    });
+
+                    observer.next(clubs);
+                    observer.complete();
+                });
+            }
         });
-
-        return clubs;
     }
 
     /**
@@ -91,10 +106,10 @@ export class ClubsService {
                 observer.complete();
             } else {
                 this.db.all(`SELECT * FROM clubs WHERE uniqueId = ? AND seasonId = ?`, [clubId, seasonId]).subscribe((rows) => {
-                    let clubs = this._processClubsFromDatabase(rows);
-
-                    observer.next(clubs.length ? clubs[0] : undefined);
-                    observer.complete();
+                    this._processClubsFromDatabase(rows).subscribe((clubs) => {
+                        observer.next(clubs.length ? clubs[0] : undefined);
+                        observer.complete();
+                    });
                 });
             }
         });

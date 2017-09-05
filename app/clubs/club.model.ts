@@ -1,6 +1,9 @@
 import { ClubVenue } from "./clubvenue.model";
+import { Season } from "../seasons/season.model";
 
 export class Club {
+    public parentSeason: Season;
+
     constructor(
         public uniqueIndex: string,
         public name: string,
