@@ -1,10 +1,9 @@
 import { Component, OnInit } from "@angular/core";
 import { ListPicker } from "ui/list-picker";
-let appSettings = require("application-settings");
 
 import { Season } from "../seasons/season.model";
 import { SeasonsService } from "../seasons/seasons.service";
-import { CURRENT_SELECTED_SEASON_KEY, CURRENT_SELECTED_CLUB_KEY } from "./appsettingskeys";
+import { SettingsService } from "./settings.service";
 import { Club } from "../clubs/club.model";
 import { ClubsService } from "../clubs/clubs.service";
 
@@ -31,14 +30,18 @@ export class SettingsComponent implements OnInit {
      * @param {SeasonsService} _seasonsService - A reference to the seasons service
      * @param {ClubsService} _clubsService - A reference to the clubs service
      */
-    constructor(private _seasonsService: SeasonsService, private _clubsService: ClubsService) { }
+    constructor(
+        private _seasonsService: SeasonsService, 
+        private _clubsService: ClubsService,
+        private _settingsService: SettingsService
+    ) { }
 
     /**
      * Hook automatically called by Angular. Gets the data from the database and the app settings.
      */
     ngOnInit() {
         // Get the settings
-        this.seasonIndex = appSettings.getNumber(CURRENT_SELECTED_SEASON_KEY) - 1 || 0;
+        this.seasonIndex = this._settingsService.currentSeason ? this._settingsService.currentSeason.id - 1 : 0;
         this.clubIndex = this._findClubIndexInCurrentSeason();
 
         this._loadSeasons();
@@ -63,7 +66,7 @@ export class SettingsComponent implements OnInit {
         let seasonPicker = <ListPicker>event.object;
         this.seasonIndex = seasonPicker.selectedIndex;
 
-        appSettings.setNumber(CURRENT_SELECTED_SEASON_KEY, this.seasonIndex + 1);
+        this._settingsService.currentSeason = this.allSeasons[this.seasonIndex];
 
         this._loadClubs();
     }
@@ -84,11 +87,9 @@ export class SettingsComponent implements OnInit {
      * @returns {number} The index of the club in the list of clubs.
      */
     private _findClubIndexInCurrentSeason(){
-        let storedKey = appSettings.getString(CURRENT_SELECTED_CLUB_KEY);
-
-        let filteredClubs = (this.allClubs || []).filter((club) => {
-            return club.uniqueIndex === storedKey;
-        });
+        let filteredClubs = this._settingsService.currentClub ? (this.allClubs || []).filter((club) => {
+            return club.uniqueIndex === this._settingsService.currentClub.uniqueIndex;
+        }) : [];
 
         return filteredClubs.length ? this.allClubs.indexOf(filteredClubs[0]) : 0;
     }
@@ -101,7 +102,7 @@ export class SettingsComponent implements OnInit {
         let clubPicker = <ListPicker>event.object;
         this.clubIndex = clubPicker.selectedIndex;
 
-        appSettings.setString(CURRENT_SELECTED_CLUB_KEY, this.allClubs[this.clubIndex].uniqueIndex);
+        this._settingsService.currentClub = this.allClubs[this.clubIndex];
     }
 
     /**

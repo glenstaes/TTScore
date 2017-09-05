@@ -13,6 +13,7 @@ import { FavoritesService } from "./teams/favorites/favorites.service";
 import { DatabaseService } from "./database/database.service";
 import { TabTImportService } from "./tabt/TabTImport.service";
 import { DivisionRankingService } from "./rankings/DivisionRanking.service";
+import { SettingsService } from "./settings/settings.service";
 
 import { HomeComponent } from "./home/home.component";
 import { SettingsComponent } from "./settings/settings.component";
@@ -52,7 +53,8 @@ import { FavoritesComponent } from "./teams/favorites/favorites.component";
         DatabaseService,
         SeasonsService,
         TabTImportService,
-        DivisionRankingService
+        DivisionRankingService,
+        SettingsService
     ],
     schemas: [
         NO_ERRORS_SCHEMA

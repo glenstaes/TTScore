@@ -68,16 +68,21 @@ export class SeasonsService {
      */
     get(seasonId) {
         return new Observable<Season>((observer) => {
-            this.db.all(`SELECT * FROM seasons WHERE id = ?`, [seasonId]).subscribe((rows) => {
-                let seasons = [];
-
-                rows.forEach((row) => {
-                    seasons.push(new Season(row[0], row[1], row[2]));
-                });
-
-                observer.next(seasons.length ? seasons[0] : undefined);
+            if (typeof seasonId === "undefined" || seasonId === null) {
+                observer.next(undefined);
                 observer.complete();
-            });
+            } else {
+                this.db.all(`SELECT * FROM seasons WHERE id = ?`, [seasonId]).subscribe((rows) => {
+                    let seasons = [];
+
+                    rows.forEach((row) => {
+                        seasons.push(new Season(row[0], row[1], row[2]));
+                    });
+
+                    observer.next(seasons.length ? seasons[0] : undefined);
+                    observer.complete();
+                });
+            }
         });
     }
 

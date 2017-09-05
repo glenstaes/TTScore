@@ -123,6 +123,10 @@ export class TeamsService {
      * @returns {Observable<Array<Team>>} An observable with an array of Team instances.
      */
     getAllByClub(club: Club, season: Season) {
+        if(typeof club === "undefined" || club === null || typeof season === "undefined" || season === null){
+            return Observable.of([]);
+        }
+
         return new Observable<Array<Team>>((observer) => {
             this.db.all(`SELECT * FROM teams WHERE clubId = ? AND seasonId = ?`, [club.uniqueIndex, season.id]).subscribe((rows) => {
                 observer.next(this._processClubTeamsFromDatabase(rows));

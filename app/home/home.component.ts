@@ -1,4 +1,6 @@
 import { Component, OnInit, NgZone } from "@angular/core";
+import { Observable } from "rxjs/Observable";
+
 import { SeasonsService } from "../seasons/seasons.service";
 import { Season } from "../seasons/season.model";
 import { ClubsService } from "../clubs/clubs.service";
@@ -6,9 +8,8 @@ import { Club } from "../clubs/club.model";
 import { Team } from "../teams/team.model";
 import { TeamsService } from "../teams/teams.service";
 import { FavoritesService } from "../teams/favorites/favorites.service";
-import { CURRENT_SELECTED_CLUB_KEY, CURRENT_SELECTED_SEASON_KEY, CURRENT_SELECTED_TEAM_KEY } from "../settings/appsettingskeys";
-import { Observable } from "rxjs/Observable";
-let appSettings = require("application-settings");
+import { SettingsService } from "../settings/settings.service";
+
 
 @Component({
     templateUrl: "home/home.component.tmpl.html",
@@ -58,29 +59,36 @@ export class HomeComponent implements OnInit {
         private _clubsService: ClubsService,
         private _teamsService: TeamsService,
         private _favoritesService: FavoritesService,
-        private _ngZone: NgZone
+        private _ngZone: NgZone,
+        private _settingsService: SettingsService
     ) {
-
+        
     }
 
     /**
      * Tries to get the currently selected club, season and team.
      */
     ngOnInit() {
-        // First, load the items that are configured.
-        Observable.forkJoin(
-            this._clubsService.get(appSettings.getString(CURRENT_SELECTED_CLUB_KEY), appSettings.getNumber(CURRENT_SELECTED_SEASON_KEY)),
-            this._seasonsService.get(appSettings.getNumber(CURRENT_SELECTED_SEASON_KEY)),
-            this._teamsService.get(appSettings.getString(CURRENT_SELECTED_TEAM_KEY))
-        ).subscribe((responses) => {
-            this.currentClub = responses[0];
-            this.currentSeason = responses[1];
-            this.currentTeam = responses[2];
+        if (this._settingsService.settingsAreLoaded) {
+            // First, load the items that are configured.
+            this._processSettings();
+        } else {
+            this._settingsService.loadSettings().subscribe(() => {
+                this._processSettings();
+            });
+        }
+    }
 
-            // Check if the team is a favorite team
-            this._checkTeamIsFavorite();
+    private _processSettings() {
+        this.currentClub = this._settingsService.currentClub;
+        this.currentSeason = this._settingsService.currentSeason;
+        this.currentTeam = this._settingsService.currentTeam;
 
-            // Load the teams for the club
+        // Check if the team is a favorite team
+        this._checkTeamIsFavorite();
+
+        // Load the teams for the club
+        if (typeof this.currentClub !== "undefined" && this.currentClub !== null) {
             this._teamsService.getAllByClub(this.currentClub, this.currentSeason).subscribe((teams) => {
                 if (teams.length === 0) {
                     // Import if still not found
@@ -90,25 +98,32 @@ export class HomeComponent implements OnInit {
                                 this.allTeams = importedTeams;
                                 if (this.allTeams.length === 0) {
                                     this.onChangeTeam({ value: 0 });
+                                } else {
+                                    this._reselectCurrentTeam();
                                 }
                             });
                         });
                     });
                 } else {
                     this.allTeams = teams;
-                }
-
-                // Reselect the current team
-                const filteredTeams = this.allTeams.filter((team) => {
-                    return team.teamId === this.currentTeam.teamId;
-                });
-                if (filteredTeams.length) {
-                    this.selectedTeamIndex = this.allTeams.indexOf(filteredTeams[0]);
-                } else {
-                    this.selectedTeamIndex = 0;
+                    this._reselectCurrentTeam();
                 }
             });
-        });
+        }
+    }
+
+    private _reselectCurrentTeam() {
+        // Reselect the current team
+        const filteredTeams = this.currentTeam ? this.allTeams.filter((team) => {
+            return team.teamId === this.currentTeam.teamId;
+        }) : [];
+
+        if (filteredTeams.length) {
+            this.selectedTeamIndex = this.allTeams.indexOf(filteredTeams[0]);
+        } else {
+            this.selectedTeamIndex = 0;
+            this.onChangeTeam({ value: 0 });
+        }
     }
 
     /**
@@ -117,7 +132,7 @@ export class HomeComponent implements OnInit {
      */
     onChangeTeam(event) {
         this.currentTeam = this.allTeams[event.value];
-        appSettings.setString(CURRENT_SELECTED_TEAM_KEY, this.currentTeam.teamId);
+        this._settingsService.currentTeam = this.currentTeam;
 
         this._checkTeamIsFavorite();
     }

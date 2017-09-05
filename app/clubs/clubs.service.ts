@@ -86,12 +86,17 @@ export class ClubsService {
      */
     get(clubId, seasonId) {
         return new Observable<Club>((observer) => {
-            this.db.all(`SELECT * FROM clubs WHERE uniqueId = ? AND seasonId = ?`, [clubId, seasonId]).subscribe((rows) => {
-                let clubs = this._processClubsFromDatabase(rows);
-
-                observer.next(clubs.length ? clubs[0] : undefined);
+            if (typeof clubId === "undefined" || clubId === null || typeof seasonId === "undefined" || seasonId === null) {
+                observer.next(undefined);
                 observer.complete();
-            });
+            } else {
+                this.db.all(`SELECT * FROM clubs WHERE uniqueId = ? AND seasonId = ?`, [clubId, seasonId]).subscribe((rows) => {
+                    let clubs = this._processClubsFromDatabase(rows);
+
+                    observer.next(clubs.length ? clubs[0] : undefined);
+                    observer.complete();
+                });
+            }
         });
     }
 
