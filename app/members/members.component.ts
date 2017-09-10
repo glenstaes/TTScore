@@ -24,6 +24,7 @@ export class MembersComponent {
     currentClub: Club;
     currentSeason: Season;
     members: Array<ClubMember> = [];
+    isLoadingMembers: boolean = false;
 
     /**
      * Creates a new instance of the component
@@ -48,10 +49,14 @@ export class MembersComponent {
             this.currentClub = responses[0];
             this.currentSeason = responses[1];
 
+            this.isLoadingMembers = true;
             this._clubMembersService.getAllByClub(this.currentClub, this.currentSeason).subscribe((members) => {
                 if(members.length === 0){
-                    this._loadFromTabT();
+                    this._loadFromTabT().subscribe(() => {
+                        this.isLoadingMembers = false;
+                    });
                 } else {
+                    this.isLoadingMembers = false;
                     this.members = members;
                 }
             });
@@ -63,7 +68,11 @@ export class MembersComponent {
      */
     onTapRefreshIcon() {
         this.members = [];
-        this._loadFromTabT();
+
+        this.isLoadingMembers = true;
+        this._loadFromTabT().subscribe(() => {
+            this.isLoadingMembers = false;
+        });
     }
 
     /**
@@ -71,8 +80,12 @@ export class MembersComponent {
      * Loads the data from the TabT api and displays the data.
      */
     private _loadFromTabT() {
-        this._clubMembersService.importFromTabT(this.currentClub.uniqueIndex, this.currentSeason.id).subscribe((importedMembers) => {
+        const observable = this._clubMembersService.importFromTabT(this.currentClub.uniqueIndex, this.currentSeason.id)
+        
+        observable.subscribe((importedMembers) => {
             this.members = importedMembers;
         });
+
+        return observable;
     }
 }

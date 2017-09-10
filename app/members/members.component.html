@@ -3,6 +3,7 @@
     <ActionItem text="Refresh" android.systemIcon="ic_popup_sync_6" (tap)="onTapRefreshIcon()"></ActionItem>
 </ActionBar>
 <StackLayout class="page">
+    <ActivityIndicator *ngIf="isLoadingMembers" busy="true" width="100" height="100"></ActivityIndicator>
     <ListView #membersListView [items]="members" class="list-group">
         <ng-template let-item="item">
             <GridLayout columns="70, 30, *" rows="auto" orientation="horizontal" class="p-10">
