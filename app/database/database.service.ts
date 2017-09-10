@@ -2,7 +2,6 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs/Observable";
 let Sqlite = require("nativescript-sqlite");
 let appSettings = require("application-settings");
-import { DATABASE_VERSION } from "../settings/appsettingskeys";
 
 @Injectable()
 export class DatabaseService {
