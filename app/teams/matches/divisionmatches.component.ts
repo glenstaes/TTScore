@@ -27,7 +27,7 @@ export class DivisionMatchesComponent {
     currentTeam: Team;
     currentWeek = "01";
     matches: Array<TeamMatch> = [];
-    weekNames = ["01", "02", "03"];
+    isLoadingMatches: boolean = false;
 
     /**
      * Creates a new instance of the component
@@ -49,10 +49,14 @@ export class DivisionMatchesComponent {
             this.currentTeam = team;
 
             // When the team is retrieved, we can start to retrieve the matches
+            this.isLoadingMatches = true;
             this._matchesService.getAllByDivision(this.currentTeam.divisionId).subscribe((matches) => {
                 if (matches.length === 0) {
-                    this._loadFromTabT();
+                    this._loadFromTabT().subscribe(() => {
+                        this.isLoadingMatches = false;
+                    });
                 } else {
+                    this.isLoadingMatches = false;
                     this.matches = matches;
                 }
             });
@@ -63,7 +67,10 @@ export class DivisionMatchesComponent {
      */
     onTapRefreshIcon() {
         this.matches = [];
-        this._loadFromTabT();
+        this.isLoadingMatches = true;
+        this._loadFromTabT().subscribe(() => {
+            this.isLoadingMatches = false;
+        });
     }
 
     /**
@@ -72,8 +79,12 @@ export class DivisionMatchesComponent {
      */
     private _loadFromTabT() {
         // Sending a third parameter makes sure the matches for the division are loaded
-        this._matchesService.importFromTabT(appSettings.getString(CURRENT_SELECTED_CLUB_KEY), this.currentTeam, this.currentTeam.divisionId).subscribe((matches) => {
+        const observable = this._matchesService.importFromTabT(appSettings.getString(CURRENT_SELECTED_CLUB_KEY), this.currentTeam, this.currentTeam.divisionId)
+        
+        observable.subscribe((matches) => {
             this.matches = matches;
         });
+
+        return observable;
     }
 }

@@ -2,12 +2,8 @@
     <ActionItem [nsRouterLink]="['/home']" text="Home" android.systemIcon="ic_menu_home"></ActionItem>
     <ActionItem text="Refresh" android.systemIcon="ic_popup_sync_6" (tap)="onTapRefreshIcon()"></ActionItem>
 </ActionBar>
-<ScrollView class="page">
-    <GridLayout cols="auto, *, auto" rows="auto">
-        <Image col="0" src="res://left_arrow.png"></Image>
-        <Label col="1" class="h3" text="Week {{ currentWeek }}"></Label>
-        <Image col="2" src="res://right_arrow.png"></Image>
-    </GridLayout>
+<StackLayout class="page">
+    <ActivityIndicator *ngIf="isLoadingMatches" busy="true" width="100" height="100"></ActivityIndicator>
     <ListView #matchesListView [items]="matches" class="list-group">
         <ng-template let-item="item">
             <GridLayout columns="*, auto, *" rows="auto, auto" orientation="horizontal" class="p-10">
@@ -25,4 +21,4 @@
             </GridLayout>
         </ng-template>
     </ListView>
-</ScrollView>
+</StackLayout>
