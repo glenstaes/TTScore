@@ -9,6 +9,7 @@
             <Label class="h3" [text]="players"></Label>
             <Button *ngIf="currentClub" [nsRouterLink]="['/members']" text="Ledenlijst"></Button>
             <Label class="h3" [text]="selectTeam"></Label>
+            <ActivityIndicator *ngIf="isLoadingTeams" #activityIndicator busy="true" width="100" height="100"></ActivityIndicator>
             <Label *ngIf="!allTeams.length" [text]="noTeamsLabel"></Label>
             <ListPicker *ngIf="allTeams.length" [items]="allTeams" [selectedIndex]="selectedTeamIndex" (selectedIndexChange)="onChangeTeam($event)"></ListPicker>
 

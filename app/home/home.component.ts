@@ -38,6 +38,7 @@ export class HomeComponent implements OnInit {
     currentSeason: Season;
     currentTeam: Team;
     currentTeamIsFavorite: boolean = false;
+    isLoadingTeams: boolean = false;
 
     // List datasources
     allTeams: Array<Team> = [];
@@ -89,12 +90,15 @@ export class HomeComponent implements OnInit {
 
         // Load the teams for the club
         if (typeof this.currentClub !== "undefined" && this.currentClub !== null) {
+            this.isLoadingTeams = true;
+
             this._teamsService.getAllByClub(this.currentClub, this.currentSeason).subscribe((teams) => {
                 if (teams.length === 0) {
                     // Import if still not found
                     this._ngZone.runOutsideAngular(() => {
                         this._teamsService.importFromTabT(this.currentClub.uniqueIndex, this.currentSeason.id).subscribe((importedTeams) => {
                             this._ngZone.run(() => {
+                                this.isLoadingTeams = false;
                                 this.allTeams = importedTeams;
                                 if (this.allTeams.length === 0) {
                                     this.onChangeTeam({ value: 0 });
@@ -105,6 +109,7 @@ export class HomeComponent implements OnInit {
                         });
                     });
                 } else {
+                    this.isLoadingTeams = false;
                     this.allTeams = teams;
                     this._reselectCurrentTeam();
                 }
