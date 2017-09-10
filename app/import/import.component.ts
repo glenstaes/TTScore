@@ -1,5 +1,7 @@
 import { Component } from "@angular/core";
+import { Router } from "@angular/router";
 import { Observable, Observer } from "rxjs/Rx";
+
 import { TabTImportService } from "../tabt/TabTImport.service";
 import { CURRENT_SELECTED_SEASON_KEY } from "../settings/appsettingskeys";
 import { SettingsService } from "../settings/settings.service";
@@ -23,7 +25,11 @@ export class ImportComponent {
      * Creates a new instance of the component.
      * @param _tabtImportService - A reference to the TabT import service.
      */
-    constructor(private _tabtImportService: TabTImportService, private _settingsService: SettingsService) {
+    constructor(
+        private _tabtImportService: TabTImportService, 
+        private _settingsService: SettingsService, 
+        private _router: Router
+    ) {
     }
 
     /**
@@ -61,6 +67,9 @@ export class ImportComponent {
                 }
 
                 observer.complete();
+
+                // Navigate to the home page after import
+                this._router.navigate(["home"]);
             }
         });
     }
