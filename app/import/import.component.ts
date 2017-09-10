@@ -2,6 +2,7 @@ import { Component } from "@angular/core";
 import { Observable, Observer } from "rxjs/Rx";
 import { TabTImportService } from "../tabt/TabTImport.service";
 import { CURRENT_SELECTED_SEASON_KEY } from "../settings/appsettingskeys";
+import { SettingsService } from "../settings/settings.service";
 let appSettings = require("application-settings");
 
 @Component({
@@ -22,7 +23,7 @@ export class ImportComponent {
      * Creates a new instance of the component.
      * @param _tabtImportService - A reference to the TabT import service.
      */
-    constructor(private _tabtImportService: TabTImportService) {
+    constructor(private _tabtImportService: TabTImportService, private _settingsService: SettingsService) {
     }
 
     /**
@@ -56,7 +57,7 @@ export class ImportComponent {
                     return season.isCurrent;
                 });
                 if(filteredCurrentSeason.length){
-                    appSettings.setNumber(CURRENT_SELECTED_SEASON_KEY, importAllResult.seasons.seasons.indexOf(filteredCurrentSeason[0]) + 1);
+                    this._settingsService.currentSeason = filteredCurrentSeason[0];
                 }
 
                 observer.complete();
