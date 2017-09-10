@@ -25,6 +25,7 @@ let appSettings = require("application-settings");
 export class TeamMatchesComponent {
     currentTeam: Team;
     matches: Array<TeamMatch> = [];
+    isLoadingMatches: boolean = false;
 
     /**
      * Creates a new instance of the component
@@ -46,10 +47,14 @@ export class TeamMatchesComponent {
             this.currentTeam = team;
 
             // When the team is retrieved, we can start to retrieve the matches
+            this.isLoadingMatches = true;
             this._matchesService.getAllByTeam(this.currentTeam).subscribe((matches) => {
                 if (matches.length === 0) {
-                    this._loadFromTabT();
+                    this._loadFromTabT().subscribe(() => {
+                        this.isLoadingMatches = false;
+                    });
                 } else {
+                    this.isLoadingMatches = false;
                     this.matches = matches;
                 }
             });
@@ -60,7 +65,10 @@ export class TeamMatchesComponent {
      */
     onTapRefreshIcon() {
         this.matches = [];
-        this._loadFromTabT();
+        this.isLoadingMatches = true;
+        this._loadFromTabT().subscribe(() => {
+            this.isLoadingMatches = false;
+        });
     }
 
     /**
@@ -69,8 +77,12 @@ export class TeamMatchesComponent {
      */
     private _loadFromTabT() {
         // undefined as third parameter makes sure that only team matches are retrieved
-        this._matchesService.importFromTabT(appSettings.getString(CURRENT_SELECTED_CLUB_KEY), this.currentTeam, undefined).subscribe((matches) => {
+        const observable = this._matchesService.importFromTabT(appSettings.getString(CURRENT_SELECTED_CLUB_KEY), this.currentTeam, undefined);
+        
+        observable.subscribe((matches) => {
             this.matches = matches;
         });
+
+        return observable;
     }
 }

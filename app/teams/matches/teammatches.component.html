@@ -4,6 +4,7 @@
 </ActionBar>
 <StackLayout class="page">
     <Label class="p-10" [text]="currentTeam?.divisionName"></Label>
+    <ActivityIndicator *ngIf="isLoadingMatches" busy="true" width="100" height="100"></ActivityIndicator>
     <ListView #rankingListView [items]="matches" class="list-group">
         <ng-template let-item="item">
             <GridLayout columns="*, auto, *" rows="auto, auto" orientation="horizontal" class="p-10">
