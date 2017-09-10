@@ -7,18 +7,18 @@
     <ActivityIndicator *ngIf="isLoadingMatches" busy="true" width="100" height="100"></ActivityIndicator>
     <ListView #rankingListView [items]="matches" class="list-group">
         <ng-template let-item="item">
-            <GridLayout columns="*, auto, *" rows="auto, auto" orientation="horizontal" class="p-10">
+            <GridLayout columns="*, auto" rows="auto, auto" orientation="horizontal" class="p-10">
                 <Label class="h3" text="Week {{ item.weekName }}"></Label>
-                <Label row="1" [text]="item.homeTeam"></Label>
-                
+                <Label row="1" text="{{ item.homeTeam }} - {{ item.awayTeam }}:"></Label>
+
                 <!-- Show either score or match date in the center -->
-                <Label row="1" col="1" *ngIf="item.score !== ''" class="h2" [text]="item.score"></Label>
-                <StackLayout row="1" col="1" *ngIf="item.score === ''">
+                <StackLayout class="text-center" row="1" col="1" *ngIf="item.score !== ''">
+                    <Label class="h2" [text]="item.score"></Label>
+                </StackLayout>
+                <StackLayout class="text-center" row="1" col="1" *ngIf="item.score === ''">
                     <Label [text]="item.matchDate"></Label>
                     <Label [text]="item.matchTime"></Label>
                 </StackLayout>
-
-                <Label row="1" col="2" class="textright" [text]="item.awayTeam"></Label>
             </GridLayout>
         </ng-template>
     </ListView>

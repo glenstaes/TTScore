@@ -1,1 +1,5 @@
 @import '~/nativescript-theme-core/css/forest.css';
+
+.text-center{
+    text-align: center;
+}
