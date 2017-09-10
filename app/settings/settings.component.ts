@@ -27,6 +27,7 @@ export class SettingsComponent implements OnInit {
     public filteredClubs: Club[];
     public allSeasons: Season[];
     public searchClubText: string = "";
+    public isLoadingClubs: boolean = false;
 
     /**
      * Creates a new intance of the component
@@ -112,9 +113,11 @@ export class SettingsComponent implements OnInit {
      * Imports the clubs for the currently selected season
      */
     importClubs() {
+        this.isLoadingClubs = true;
         this._clubsService.importFromTabT(this.seasonIndex + 1).subscribe((clubsImportResult) => {
             if (clubsImportResult.completed) {
                 this.allClubs = clubsImportResult.clubs;
+                this.isLoadingClubs = false;
             }
         });
     }

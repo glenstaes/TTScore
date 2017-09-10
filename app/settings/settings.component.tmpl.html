@@ -7,10 +7,12 @@
         <ListPicker [items]="allSeasons" [selectedIndex]="seasonIndex" (selectedIndexChange)="onChangeSeason($event)"></ListPicker>
     </StackLayout>
     <Label class="h3" text="Club"></Label>
-    <TextField [(ngModel)]="searchClubText" #searchClubField hint="Club zoeken" autocorrect="false" class="input input-border" (textChange)="onTextChangeSearchClub($event)"></TextField>
+    <TextField [(ngModel)]="searchClubText" #searchClubField hint="Club zoeken" autocorrect="false" class="input input-border"
+        (textChange)="onTextChangeSearchClub($event)"></TextField>
     <StackLayout *ngIf="!searchClubField.text.length">
+        <ActivityIndicator *ngIf="isLoadingClubs" #activityIndicator busy="true" width="50" height="50"></ActivityIndicator>
         <ListPicker *ngIf="allClubs?.length" [items]="allClubs" [selectedIndex]="clubIndex" (selectedIndexChange)="onChangeClub($event)"></ListPicker>
-        <Button *ngIf="allClubs?.length === 0" (tap)="importClubs()" text="Clubs ophalen"></Button>
+        <Button *ngIf="!isLoadingClubs && allClubs?.length === 0" (tap)="importClubs()" text="Clubs ophalen"></Button>
     </StackLayout>
     <ListView *ngIf="searchClubField.text.length" [items]="filteredClubs" class="list-group" (itemTap)="onTapClub($event, searchClubField)">
         <ng-template let-item="item">
