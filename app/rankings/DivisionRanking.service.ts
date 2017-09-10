@@ -18,16 +18,9 @@ export class DivisionRankingService {
      * @param {DatabaseService} db - The database service for working with the database
      */
     constructor(private db: DatabaseService, private http: Http) {
-        this._ensureTable();
+
     }
 
-    /**
-     * @private
-     * Ensures that the divisionrankings table exists in the database.
-     */
-    private _ensureTable() {
-        this.db.execSQL(`CREATE TABLE IF NOT EXISTS divisionrankings (divisionId INTEGER, position INTEGER, team TEXT, gamesPlayed INTEGER, gamesWon INTEGER, gamesLost INTEGER, gamesDraw INTEGER, individualMatchesWon INTEGER, individualMatchesLost INTEGER, individualSetsWon INTEGER, individualSetsLost INTEGER, points INTEGER, teamClubId TEXT)`).subscribe();
-    }
     /**
      * Gets a division ranking entry from the database.
      * @param {number} divisionId - The id of the division to retrieve the entries for.

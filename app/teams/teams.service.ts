@@ -17,16 +17,8 @@ export class TeamsService {
      * @param {DatabaseService} db - The database service for working with the database
      */
     constructor(private db: DatabaseService, private http: Http) {
-        this._ensureTable();
     }
 
-    /**
-     * @private
-     * Ensures that the teams table exists in the database.
-     */
-    private _ensureTable() {
-        this.db.execSQL(`CREATE TABLE IF NOT EXISTS teams (teamId TEXT, team TEXT, divisionId INTEGER, divisonName TEXT, divisionCategoryId INTEGER, clubId TEXT, seasonId INTEGER)`).subscribe();
-    }
     /**
      * Gets a team from the database.
      * @param {string} teamId - The id of the team to retrieve from the database.

@@ -17,16 +17,9 @@ export class ClubMemberService {
      * @param {DatabaseService} db - The database service for working with the database
      */
     constructor(private db: DatabaseService, private http: Http) {
-        this._ensureTable();
-    }
 
-    /**
-     * @private
-     * Ensures that the clubmembers table exists in the database.
-     */
-    private _ensureTable() {
-        this.db.execSQL(`CREATE TABLE IF NOT EXISTS clubmembers (position INTEGER, uniqueIndex INTEGER, rankingIndex INTEGER, firstName TEXT, lastName TEXT, ranking TEXT, seasonId INTEGER, clubId TEXT)`).subscribe();
     }
+    
     /**
      * Gets a member from the database.
      * @param {number} memberId - The id of the member to retrieve from the database.

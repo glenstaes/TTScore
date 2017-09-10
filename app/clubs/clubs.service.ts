@@ -18,15 +18,7 @@ export class ClubsService {
      * @param {DatabaseService} db - The database service for working with the database
      */
     constructor(private db: DatabaseService, private http: Http, private _seasonsService: SeasonsService) {
-        this._ensureTable();
-    }
 
-    /**
-     * @private
-     * Ensures that the clubs table exists in the database.
-     */
-    private _ensureTable() {
-        this.db.execSQL(`CREATE TABLE IF NOT EXISTS clubs (uniqueId TEXT, seasonId INTEGER, name TEXT, longName TEXT, categoryId INTEGER)`).subscribe();
     }
 
     /**

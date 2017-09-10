@@ -23,15 +23,7 @@ export class SeasonsService {
      * @param {DatabaseService} db - The database service for working with the database
      */
     constructor(private db: DatabaseService, private http: Http) {
-        this._ensureTable();
-    }
 
-    /**
-     * @private
-     * Ensures that the seasons table exists in the database.
-     */
-    private _ensureTable() {
-        this.db.execSQL(`CREATE TABLE IF NOT EXISTS seasons (id INTEGER PRIMARY KEY, name TEXT, isCurrent BOOLEAN)`).subscribe();
     }
 
     /**
