@@ -20,6 +20,7 @@ export class RankingComponent {
     currentTeam: Team;
     rankingEntries: Array<DivisionRanking> = [];
     activePosition: number = 0;
+    isLoadingRankingEntries: boolean = false;
 
     /**
      * Creates a new instance of the component
@@ -36,15 +37,20 @@ export class RankingComponent {
      * Tries to get the currently selected items.
      */
     ngOnInit() {
+        this.isLoadingRankingEntries = true;
+
         this._teamsService.get(appSettings.getString(CURRENT_SELECTED_TEAM_KEY)).subscribe((team) => {
             this.currentTeam = team;
 
             // When the team is retrieved, we can start to retrieve the ranking entries
             this._rankingsService.getAllByDivision(this.currentTeam.divisionId).subscribe((rankingEntries) => {
                 if (rankingEntries.length === 0) {
-                    this._loadFromTabT();
+                    this._loadFromTabT().subscribe(() => {
+                        this.isLoadingRankingEntries = false;
+                    });
                 } else {
                     this.rankingEntries = rankingEntries;
+                    this.isLoadingRankingEntries = false;
                 }
             });
         });
@@ -63,7 +69,10 @@ export class RankingComponent {
      */
     onTapRefreshIcon() {
         this.rankingEntries = [];
-        this._loadFromTabT();
+        this.isLoadingRankingEntries = true;
+        this._loadFromTabT().subscribe(() => {
+            this.isLoadingRankingEntries = false;
+        });
     }
 
     /**
@@ -71,8 +80,12 @@ export class RankingComponent {
      * Loads the data from the TabT api and displays the data.
      */
     private _loadFromTabT() {
-        this._rankingsService.importFromTabT(this.currentTeam.divisionId).subscribe((importedRankingEntries) => {
+        const observable = this._rankingsService.importFromTabT(this.currentTeam.divisionId);
+        
+        observable.subscribe((importedRankingEntries) => {
             this.rankingEntries = importedRankingEntries;
         });
+
+        return observable;
     }
 }
