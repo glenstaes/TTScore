@@ -1,5 +1,6 @@
 import { Component, ViewChild } from "@angular/core";
 import { Observable } from "rxjs/Rx";
+import { RouterExtensions } from "nativescript-angular/router";
 
 import { SeasonsService } from "../seasons/seasons.service";
 import { Season } from "../seasons/season.model";
@@ -33,7 +34,8 @@ export class MembersComponent {
     constructor(
         private _seasonsService: SeasonsService,
         private _clubsService: ClubsService,
-        private _clubMembersService: ClubMemberService
+        private _clubMembersService: ClubMemberService,
+        private _routerExtensions: RouterExtensions
     ) {
 
     }
@@ -73,6 +75,14 @@ export class MembersComponent {
         this._loadFromTabT().subscribe(() => {
             this.isLoadingMembers = false;
         });
+    }
+
+    /**
+     * Called whenever an item in the members list is tapped.
+     * @param {any} $event - The event that fired the function.
+     */
+    onTapMemberItem($event){
+        this._routerExtensions.navigate(["/member-details/" + this.members[$event.index].uniqueIndex]);
     }
 
     /**

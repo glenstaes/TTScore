@@ -6,6 +6,7 @@ import { DatabaseService } from "../database/database.service";
 import { Season } from "../seasons/Season.model";
 import { Club } from "../clubs/club.model";
 import { ClubMember } from "./ClubMember.model";
+import { ClubMemberResultEntry } from "./ClubMemberResultEntry";
 
 @Injectable()
 /**
@@ -138,6 +139,49 @@ export class ClubMemberService {
     }
 
     /**
+     * Gets the information for a single member in the current season
+     * @param {any} uniqueIndex - The unique index of the member
+     */
+    getFromTabT(uniqueIndex): Observable<ClubMember>{
+        let params: URLSearchParams = new URLSearchParams();
+        params.set("action", "GetMembers");
+        params.set("UniqueIndex", uniqueIndex);
+        params.set("WithResults", "true");
+
+        let requestOptions = new RequestOptions({
+            search: params
+        });
+
+        return this.http.get("http://junosolutions.be/ttscore.php", requestOptions).map((response) => {
+            let jsonResponse = <TabTClubMembersResponse>response.json();
+            let members = [];
+
+            jsonResponse.MemberEntries.forEach((memberEntry: TabTClubMember) => {
+                members.push(new ClubMember(
+                    memberEntry.Position,
+                    memberEntry.UniqueIndex,
+                    memberEntry.RankingIndex,
+                    memberEntry.FirstName,
+                    memberEntry.LastName,
+                    memberEntry.Ranking,
+                    (memberEntry.ResultEntries || []).map((resultEntry) => {
+                        return new ClubMemberResultEntry(
+                            resultEntry.Date,
+                            resultEntry.UniqueIndex,
+                            resultEntry.FirstName,
+                            resultEntry.LastName,
+                            resultEntry.Ranking,
+                            resultEntry.Result
+                        );
+                    })
+                ));
+            });
+
+            return members.length ? members[0] : undefined;
+        });
+    }
+
+    /**
      * Gets all the club members from the TabT database.
      * @param {string} clubId - The unique identifier of the club to get the members from.
      * @param {number} seasonId - The id of the season to retrieve the clubs from.
@@ -157,14 +201,24 @@ export class ClubMemberService {
             let jsonResponse = <TabTClubMembersResponse>response.json();
             let members = [];
 
-            jsonResponse.MemberEntries.forEach((memberEntry) => {
+            jsonResponse.MemberEntries.forEach((memberEntry: TabTClubMember) => {
                 members.push(new ClubMember(
                     memberEntry.Position,
                     memberEntry.UniqueIndex,
                     memberEntry.RankingIndex,
                     memberEntry.FirstName,
                     memberEntry.LastName,
-                    memberEntry.Ranking
+                    memberEntry.Ranking,
+                    (memberEntry.ResultEntries || []).map((resultEntry) => {
+                        return new ClubMemberResultEntry(
+                            resultEntry.Date,
+                            resultEntry.UniqueIndex,
+                            resultEntry.FirstName,
+                            resultEntry.LastName,
+                            resultEntry.Ranking,
+                            resultEntry.Result
+                        );
+                    })
                 ));
             });
 
@@ -195,6 +249,15 @@ interface TabTClubMembersResponse {
     MemberEntries: Array<TabTClubMember>;
 }
 
+interface TabTClubMemberResultEntryResponse{
+    Date?: string;
+    UniqueIndex: number;
+    FirstName: string;
+    LastName: string;
+    Ranking: string;
+    Result: string;
+}
+
 interface TabTClubMember {
     Position: number;
     UniqueIndex: number;
@@ -202,4 +265,6 @@ interface TabTClubMember {
     FirstName: string;
     LastName: string;
     Ranking: string;
+    ResultCount?: number;
+    ResultEntries?: Array<TabTClubMemberResultEntryResponse>;
 }

@@ -20,6 +20,7 @@ import { HomeComponent } from "./home/home.component";
 import { SettingsComponent } from "./settings/settings.component";
 import { ImportComponent } from "./import/import.component";
 import { MembersComponent } from "./members/members.component";
+import { MemberDetailsComponent } from "./members/member-details.component";
 import { RankingComponent } from "./rankings/ranking.component";
 import { TeamMatchesComponent } from "./teams/matches/teammatches.component";
 import { DivisionMatchesComponent } from "./teams/matches/divisionmatches.component";
@@ -41,6 +42,7 @@ import { FavoritesComponent } from "./teams/favorites/favorites.component";
         SettingsComponent,
         ImportComponent,
         MembersComponent,
+        MemberDetailsComponent,
         RankingComponent,
         TeamMatchesComponent,
         DivisionMatchesComponent,

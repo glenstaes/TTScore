@@ -1,0 +1,16 @@
+<ActionBar title='{{ member?.toString() }} - Details' class="action-bar">
+    <ActionItem text="Back" icon="res://back_icon" (tap)="onTapBackIcon()"></ActionItem>
+    <ActionItem text="Refresh" android.systemIcon="ic_popup_sync_6" (tap)="onTapRefreshIcon()"></ActionItem>
+</ActionBar>
+<StackLayout class="page">
+    <ActivityIndicator *ngIf="isLoading" busy="true" width="100" height="100"></ActivityIndicator>
+    <ListView #resultsListView [items]="member?.resultEntries" class="list-group">
+        <ng-template let-item="item">
+            <GridLayout class="p-5" [class.victory]="item.resultIndicator === 'V'" [class.defeat]="item.resultIndicator === 'D'" rows="auto, auto" columns="70, *">
+                <Label col="1" [text]="item.date"></Label>
+                <Label row="1" col="0" [text]="item.ranking"></Label>
+                <Label row="1" col="1" text="{{ item.firstName }} {{ item.lastName }}"></Label>
+            </GridLayout>
+        </ng-template>
+    </ListView>
+</StackLayout>

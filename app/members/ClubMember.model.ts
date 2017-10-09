@@ -1,3 +1,4 @@
+import { ClubMemberResultEntry } from "./ClubMemberResultEntry";
 /**
  * This class represents the member of a club
  * @property {number} position - The position on the member list.
@@ -6,6 +7,7 @@
  * @property {string} firstName - The first name of the member.
  * @property {string} lastName - The last name of the member.
  * @property {string} ranking - The ranking of the member.
+ * @property {Array<ClubMemberResultEntry>} resultEntries - The entries of the player results.
  */
 export class ClubMember {
     constructor(
@@ -14,7 +16,8 @@ export class ClubMember {
         public rankingIndex: number,
         public firstName: string,
         public lastName: string,
-        public ranking: string
+        public ranking: string,
+        public resultEntries: Array<ClubMemberResultEntry> = []
     ){}
 
     /**
