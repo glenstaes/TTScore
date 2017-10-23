@@ -6,9 +6,11 @@ let appSettings = require("application-settings");
 @Injectable()
 export class DatabaseService {
     private database: any;
-    readonly version = 1;
+    readonly version = 3;
     private readonly versionQueries = [
-        this._version1Query
+        this._version1Query,
+        this._version2Query,
+        this._version3Query
     ];
 
     /**
@@ -27,7 +29,7 @@ export class DatabaseService {
                 const query = this.versionQueries[index];
                 query.apply(this).subscribe(() => {
                     const nextIndex = parseInt(index) + 1;
-                    console.log("executed version " + nextIndex);
+
                     if (nextIndex >= this.version) {
                         this.database.version(this.version);
                         observer.next();
@@ -50,7 +52,7 @@ export class DatabaseService {
     }
 
     /**
-     * Query for database version 1.
+     * Queries for database
      */
     private _version1Query() {
         const forkableQueries = [
@@ -59,6 +61,22 @@ export class DatabaseService {
             this.execSQL("CREATE TABLE divisionrankings (divisionId INTEGER, position INTEGER, team TEXT, gamesPlayed INTEGER, gamesWon INTEGER, gamesLost INTEGER, gamesDraw INTEGER, individualMatchesWon INTEGER, individualMatchesLost INTEGER, individualSetsWon INTEGER, individualSetsLost INTEGER, points INTEGER, teamClubId TEXT);"),
             this.execSQL("CREATE TABLE seasons (id INTEGER PRIMARY KEY, name TEXT, isCurrent BOOLEAN);"),
             this.execSQL("CREATE TABLE teams (teamId TEXT, team TEXT, divisionId INTEGER, divisonName TEXT, divisionCategoryId INTEGER, clubId TEXT, seasonId INTEGER);")
+        ];
+
+        return Observable.forkJoin(...forkableQueries);
+    }
+
+    private _version2Query(){
+        const forkableQueries = [
+            this.execSQL(`CREATE TABLE IF NOT EXISTS matches (divisionId TEXT, matchId TEXT, teamId TEXT, weekName TEXT, date TEXT, time TEXT, venue INTEGER, homeClubId TEXT, homeTeam TEXT, awayClubId TEXT, awayTeam TEXT, isHomeForfeited INTEGER, isAwayForfeited INTEGER, score TEXT)`)
+        ];
+
+        return Observable.forkJoin(...forkableQueries);
+    }
+
+    private _version3Query(){
+        const forkableQueries = [
+            this.execSQL(`ALTER TABLE matches ADD COLUMN uniqueIndex INTEGER;`)
         ];
 
         return Observable.forkJoin(...forkableQueries);

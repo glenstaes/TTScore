@@ -10,6 +10,7 @@ import { ImportComponent } from "./import/import.component";
 import { RankingComponent } from "./rankings/ranking.component";
 import { TeamMatchesComponent } from "./teams/matches/teammatches.component";
 import { DivisionMatchesComponent } from "./teams/matches/divisionmatches.component";
+import { MatchDetailsComponent } from "./teams/matches/match-details/match-details.component";
 import { FavoritesComponent } from "./teams/favorites/favorites.component";
 
 const routes: Routes = [
@@ -22,6 +23,7 @@ const routes: Routes = [
     { path: "ranking", component: RankingComponent },
     { path: "teammatches", component: TeamMatchesComponent },
     { path: "divisionmatches", component: DivisionMatchesComponent },
+    { path: "match-details/:divisionId/:matchUniqueIndex", component: MatchDetailsComponent },
     { path: "favorites", component: FavoritesComponent }
 ];
 

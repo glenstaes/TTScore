@@ -1,5 +1,6 @@
 import { Component, ViewChild } from "@angular/core";
 import { Observable } from "rxjs/Rx";
+import { RouterExtensions } from "nativescript-angular/router";
 
 import { Team } from "../../teams/team.model";
 import { TeamsService } from "../../teams/teams.service";
@@ -36,7 +37,8 @@ export class DivisionMatchesComponent {
      */
     constructor(
         private _teamsService: TeamsService,
-        private _matchesService: TeamMatchesService
+        private _matchesService: TeamMatchesService,
+        private _routerExtensions: RouterExtensions
     ) {
 
     }
@@ -71,6 +73,14 @@ export class DivisionMatchesComponent {
         this._loadFromTabT().subscribe(() => {
             this.isLoadingMatches = false;
         });
+    }
+
+    /**
+     * Callback for when a match in the list is tapped. Navigates to the match details.
+     */
+    onTapMatch(event){
+        const match = this.matches[event.index];
+        this._routerExtensions.navigate(["/match-details/" + match.divisionId + "/" + match.uniqueIndex]);
     }
 
     /**

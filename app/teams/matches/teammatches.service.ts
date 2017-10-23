@@ -7,6 +7,7 @@ import { Season } from "../../seasons/Season.model";
 import { Club } from "../../clubs/club.model";
 import { Team } from "../team.model";
 import { TeamMatch } from "./TeamMatch.model";
+import { MatchDetails, MatchTeamPlayers, MatchPlayer, IndividualMatchResult } from "./match-details/MatchDetails.model";
 
 @Injectable()
 /**
@@ -18,16 +19,9 @@ export class TeamMatchesService {
      * @param {DatabaseService} db - The database service for working with the database
      */
     constructor(private db: DatabaseService, private http: Http) {
-        this._ensureTable();
+
     }
 
-    /**
-     * @private
-     * Ensures that the teams table exists in the database.
-     */
-    private _ensureTable() {
-        this.db.execSQL(`CREATE TABLE IF NOT EXISTS matches (divisionId TEXT, matchId TEXT, teamId TEXT, weekName TEXT, date TEXT, time TEXT, venue INTEGER, homeClubId TEXT, homeTeam TEXT, awayClubId TEXT, awayTeam TEXT, isHomeForfeited INTEGER, isAwayForfeited INTEGER, score TEXT)`).subscribe();
-    }
     /**
      * Gets a match from the database.
      * @param {string} matchId - The id of the match to retrieve from the database.
@@ -48,6 +42,70 @@ export class TeamMatchesService {
                     observer.complete();
                 });
             }
+        });
+    }
+
+    /**
+     * Gets the details of a match from the TabT database.
+     * @param matchId The unique identifier of the match
+     * @param divisionId The unique identifier of the division the match belongs to
+     */
+    getMatchDetails(matchId: number, divisionId: number): Observable<TeamMatch>{
+        let params: URLSearchParams = new URLSearchParams();
+        params.set("action", "GetMatches");
+        params.set("MatchUniqueId", matchId.toString());
+        params.set("WithDetails", true.toString());
+
+        let requestOptions = new RequestOptions({
+            search: params
+        });
+
+        return this.http.get("http://junosolutions.be/ttscore.php", requestOptions).map((response) => {
+            let jsonResponse = <TabTTeamMatchesResponse>response.json();
+            let matches = [];
+
+            jsonResponse.TeamMatchesEntries.forEach((matchEntry) => {
+                const match = new TeamMatch(
+                    matchEntry.MatchUniqueId,
+                    divisionId,
+                    matchEntry.MatchId,
+                    "",
+                    matchEntry.WeekName,
+                    matchEntry.Date,
+                    matchEntry.Time,
+                    matchEntry.Venue,
+                    matchEntry.HomeClub,
+                    matchEntry.HomeTeam,
+                    matchEntry.AwayClub,
+                    matchEntry.AwayTeam,
+                    matchEntry.IsHomeForfeited,
+                    matchEntry.IsAwayForfeited,
+                    matchEntry.Score
+                );
+
+                match.details = new MatchDetails(
+                    matchEntry.MatchDetails.DetailsCreated,
+                    matchEntry.MatchDetails.HomeCaptain,
+                    matchEntry.MatchDetails.AwayCaptain,
+                    matchEntry.MatchDetails.Referee,
+                    new MatchTeamPlayers(matchEntry.MatchDetails.HomePlayers.PlayersCount, matchEntry.MatchDetails.HomePlayers.DoubleTeamCount, matchEntry.MatchDetails.HomePlayers.Players.map((player) => {
+                        return new MatchPlayer(player.Position, player.UniqueIndex, player.FirstName, player.LastName, player.Ranking, player.VictoryCount);
+                    })),
+                    new MatchTeamPlayers(matchEntry.MatchDetails.AwayPlayers.PlayersCount, matchEntry.MatchDetails.AwayPlayers.DoubleTeamCount, matchEntry.MatchDetails.AwayPlayers.Players.map((player) => {
+                        return new MatchPlayer(player.Position, player.UniqueIndex, player.FirstName, player.LastName, player.Ranking, player.VictoryCount);
+                    })),
+                    matchEntry.MatchDetails.IndividualMatchResults.map((result) => {
+                        return new IndividualMatchResult(result.Position, result.HomePlayerMatchIndex, result.HomePlayerUniqueIndex, result.AwayPlayerMatchIndex, result.AwayPlayerUniqueIndex, result.HomeSetCount, result.AwaySetCount, result.Scores);
+                    }),
+                    matchEntry.MatchDetails.MatchSystem,
+                    matchEntry.MatchDetails.HomeScore,
+                    matchEntry.MatchDetails.AwayScore
+                );
+
+                matches.push(match);
+            });
+
+            return matches.length ? matches[0] : undefined;
         });
     }
 
@@ -93,7 +151,7 @@ export class TeamMatchesService {
      */
     private _create(match: TeamMatch) {
         return new Observable<boolean>((observer) => {
-            this.db.execSQL(`INSERT INTO matches VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, [
+            this.db.execSQL(`INSERT INTO matches VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, [
                 match.divisionId,
                 match.matchNumber,
                 match.teamId,
@@ -107,7 +165,8 @@ export class TeamMatchesService {
                 match.awayTeam,
                 match.isHomeForfeited,
                 match.isAwayForfeited,
-                match.score
+                match.score,
+                match.uniqueIndex
             ]).subscribe((rows) => {
                 observer.next(rows ? true : false);
                 observer.complete();
@@ -123,9 +182,10 @@ export class TeamMatchesService {
     private _update(match: TeamMatch) {
         return new Observable<boolean>((observer) => {
             this.db.execSQL(`UPDATE matches 
-                                SET weekName = ?, date = ?, time = ?, venue = ?, homeClubId = ?, homeTeam = ?, awayClubId = ?, awayTeam = ?, isHomeForfeited = ?, isAwayForfeited = ?, score = ?
+                                SET uniqueIndex = ?, weekName = ?, date = ?, time = ?, venue = ?, homeClubId = ?, homeTeam = ?, awayClubId = ?, awayTeam = ?, isHomeForfeited = ?, isAwayForfeited = ?, score = ?
                                 WHERE matchId = ? AND divisionId = ?`,
                 [
+                    match.uniqueIndex,
                     match.weekName,
                     match.date,
                     match.time,
@@ -184,6 +244,7 @@ export class TeamMatchesService {
 
         rows.forEach((row) => {
             matches.push(new TeamMatch(
+                row[14],
                 row[0],
                 row[1],
                 row[2],
@@ -234,6 +295,7 @@ export class TeamMatchesService {
 
             jsonResponse.TeamMatchesEntries.forEach((matchEntry) => {
                 teams.push(new TeamMatch(
+                    matchEntry.MatchUniqueId,
                     divisionId || team.divisionId,
                     matchEntry.MatchId,
                     typeof divisionId !== "undefined" ? "" : team.teamId,
@@ -296,4 +358,45 @@ interface TabTTeamMatch {
     IsHomeForfeited: boolean;
     IsAwayForfeited: boolean;
     Score: string;
+    MatchUniqueId: number;
+    MatchDetails?: TabTMatchDetails;
+}
+
+interface TabTMatchDetails{
+    DetailsCreated: boolean;
+    HomeCaptain: number;
+    AwayCaptain: number;
+    Referee: number;
+    HomePlayers: TabTMatchPlayers;
+    AwayPlayers: TabTMatchPlayers;
+    IndividualMatchResults: Array<TabTIndividualMatchResult>;
+    MatchSystem: number;
+    HomeScore: number;
+    AwayScore: number;
+}
+
+interface TabTMatchPlayers {
+    PlayersCount: number;
+    DoubleTeamCount: number;
+    Players: Array<TabTMatchPlayer>
+}
+
+interface TabTMatchPlayer {
+    Position: number;
+    UniqueIndex: number;
+    FirstName: string;
+    LastName: string;
+    Ranking: string;
+    VictoryCount: number;
+}
+
+interface TabTIndividualMatchResult{
+    Position: number;
+    HomePlayerMatchIndex: number;
+    HomePlayerUniqueIndex: number;
+    AwayPlayerMatchIndex: number;
+    AwayPlayerUniqueIndex: number;
+    HomeSetCount: number;
+    AwaySetCount: number;
+    Scores: string;
 }

@@ -1,0 +1,66 @@
+<ActionBar [title]='match?.fullMatchName' class="action-bar">
+    <ActionItem text="Back" icon="res://back_icon" (tap)="onTapBackIcon()"></ActionItem>
+    <ActionItem text="Refresh" android.systemIcon="ic_popup_sync_6" (tap)="onTapRefreshIcon()"></ActionItem>
+</ActionBar>
+<StackLayout class="page">
+    <Label *ngIf="customMessage.length" [text]="customMessage"></Label>
+    <ActivityIndicator *ngIf="isLoadingMatch" busy="true" width="100" height="100"></ActivityIndicator>
+    <ng-container *ngIf="!isLoadingMatch && match">
+        <TabView>
+            <StackLayout *tabItem="{title: match.homeTeam}">
+                <ListView [items]="match.details.homePlayers.players">
+                    <ng-template let-item="item">
+                        <GridLayout columns="30, 30, *, 30" rows="auto" orientation="horizontal" class="p-10">
+                            <StackLayout col="0">
+                                <Label class="h3" [text]="item.position"></Label>
+                            </StackLayout>
+                            <StackLayout col="1">
+                                <Label class="h3" [text]="item.ranking"></Label>
+                            </StackLayout>
+                            <StackLayout col="2">
+                                <Label class="h3" text="{{ item.firstName }} {{ item.lastName }}"></Label>
+                            </StackLayout>
+                            <StackLayout col="3">
+                                <label class="h3" [text]="item.victoryCount"></label>
+                            </StackLayout>
+                        </GridLayout>
+                    </ng-template>
+                </ListView>
+            </StackLayout>
+            <StackLayout *tabItem="{title: match.awayTeam}">
+                <ListView [items]="match.details.awayPlayers.players">
+                    <ng-template let-item="item">
+                        <GridLayout columns="30, 30, *, 30" rows="auto" orientation="horizontal" class="p-10">
+                            <StackLayout col="0">
+                                <Label class="h3" [text]="item.position"></Label>
+                            </StackLayout>
+                            <StackLayout col="1">
+                                <Label class="h3" [text]="item.ranking"></Label>
+                            </StackLayout>
+                            <StackLayout col="2">
+                                <Label class="h3" text="{{ item.firstName }} {{ item.lastName }}"></Label>
+                            </StackLayout>
+                            <StackLayout col="3">
+                                <label class="h3" [text]="item.victoryCount"></label>
+                            </StackLayout>
+                        </GridLayout>
+                    </ng-template>
+                </ListView>
+            </StackLayout>
+            <StackLayout *tabItem="{title: 'Wedstrijd'}">
+                <ListView [items]="match.details.individualMatchResults" (itemTap)="onTapIndividualMatch($event)">
+                    <ng-template let-item="item">
+                        <GridLayout columns="*, 50" rows="auto" orientation="horizontal" class="p-10">
+                            <StackLayout>
+                                <individual-match-result [collapseScores]="!currentIndividualResult || currentIndividualResult.position !== item.position" [homePlayer]="match.details.homePlayers.players[item.homePlayerMatchIndex - 1]" [awayPlayer]="match.details.awayPlayers.players[item.awayPlayerMatchIndex - 1]" [result]="item"></individual-match-result>
+                            </StackLayout>
+                            <StackLayout class="text-right" col="1">
+                                <Label [text]="getMatchTotal(item)"></Label>
+                            </StackLayout>
+                        </GridLayout>
+                    </ng-template>
+                </ListView>
+            </StackLayout>
+        </TabView>
+    </ng-container>
+</StackLayout>

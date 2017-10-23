@@ -1,5 +1,8 @@
+import { MatchDetails } from "./match-details/MatchDetails.model";
+
 /**
  * This class represents a match for a team.
+ * @property {number} uniqueIndex - The unique database number for a match.
  * @property {number} divisionId - The division the match is played in.
  * @property {string} matchNumber - The unique number for a match.
  * @property {string} teamId - The team id for which the match was downloaded.
@@ -14,9 +17,11 @@
  * @property {boolean} isHomeForfeited - Whether the home team is forfeited.
  * @property {boolean} isAwayForfeited - Whether the away team is forfeited.
  * @property {string} score - The score of the match.
+ * @property {MatchDetails} details - The details of the match.
  */
 export class TeamMatch {
     constructor(
+        public uniqueIndex: number,
         public divisionId: number,
         public matchNumber: string,
         public teamId: string,
@@ -30,7 +35,8 @@ export class TeamMatch {
         public awayTeam: string,
         public isHomeForfeited: boolean,
         public isAwayForfeited: boolean,
-        public score: string
+        public score: string,
+        public details: MatchDetails = undefined
     ) { }
 
     /** Gets the full match name (concatenation of home and away team) */
