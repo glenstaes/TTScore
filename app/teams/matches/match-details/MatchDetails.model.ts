@@ -54,7 +54,7 @@ export class IndividualMatchResult {
     }
 
     private _setScores(value: string){
-        this._splittedSetResults = value.split(",").map((setResult) => {
+        this._splittedSetResults = (value || "").split(",").map((setResult) => {
             return parseInt(setResult.substring(setResult.indexOf("|") + 1));
         });
     }
