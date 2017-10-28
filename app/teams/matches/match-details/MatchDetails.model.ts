@@ -44,8 +44,10 @@ export class IndividualMatchResult {
         public position: number,
         public homePlayerMatchIndex: number,
         public homePlayerUniqueIndex: number,
+        public isHomeForfeited: boolean,
         public awayPlayerMatchIndex: number,
         public awayPlayerUniqueIndex: number,
+        public isAwayForfeited: boolean,
         public homeSetCount: number,
         public awaySetCount: number,
         scores: string

@@ -95,7 +95,17 @@ export class TeamMatchesService {
                         return new MatchPlayer(player.Position, player.UniqueIndex, player.FirstName, player.LastName, player.Ranking, player.VictoryCount);
                     })),
                     matchEntry.MatchDetails.IndividualMatchResults.map((result) => {
-                        return new IndividualMatchResult(result.Position, result.HomePlayerMatchIndex, result.HomePlayerUniqueIndex, result.AwayPlayerMatchIndex, result.AwayPlayerUniqueIndex, result.HomeSetCount, result.AwaySetCount, result.Scores);
+                        return new IndividualMatchResult(
+                            result.Position, 
+                            result.HomePlayerMatchIndex, 
+                            result.HomePlayerUniqueIndex,
+                            result.IsHomeForfeited || false,
+                            result.AwayPlayerMatchIndex, 
+                            result.AwayPlayerUniqueIndex, 
+                            result.IsAwayForfeited || false,
+                            result.HomeSetCount, 
+                            result.AwaySetCount, 
+                            result.Scores);
                     }),
                     matchEntry.MatchDetails.MatchSystem,
                     matchEntry.MatchDetails.HomeScore,
@@ -394,8 +404,10 @@ interface TabTIndividualMatchResult{
     Position: number;
     HomePlayerMatchIndex: number;
     HomePlayerUniqueIndex: number;
+    IsHomeForfeited: boolean;
     AwayPlayerMatchIndex: number;
     AwayPlayerUniqueIndex: number;
+    IsAwayForfeited: boolean;
     HomeSetCount: number;
     AwaySetCount: number;
     Scores: string;

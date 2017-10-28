@@ -30,29 +30,33 @@ export class IndividualMatchDetailComponent {
     /**
      * Interprets the scores in the match and returns them in a 11-5, 6-11, 10-12, ... form.
      */
-    getMatchScores(){
-        return this.result.scores.map((score) => {
-            let oppositeScore = 11;
-            
-            // When the score is greater than 10, the score of the opponent should be 2 points higher, otherwise it's 11.
-            if(score.score >= 10){
-                oppositeScore = score.score + 2;
-            }
+    getMatchScores() {
+        if (!this.result.isHomeForfeited && !this.result.isHomeForfeited) {
+            return this.result.scores.map((score) => {
+                let oppositeScore = 11;
 
-            if(score.isHomeWin){
-                return `${oppositeScore}-${score.score}`;
-            } else {
-                return `${score.score}-${oppositeScore}`;
-            }
-        }).join(", ");
+                // When the score is greater than 10, the score of the opponent should be 2 points higher, otherwise it's 11.
+                if (score.score >= 10) {
+                    oppositeScore = score.score + 2;
+                }
+
+                if (score.isHomeWin) {
+                    return `${oppositeScore}-${score.score}`;
+                } else {
+                    return `${score.score}-${oppositeScore}`;
+                }
+            }).join(", ");
+        } else {
+            return "FF";
+        }
     }
 
     /**
      * Gets the names of the player(s) to display.
      * @param player The player(s) to get the names for
      */
-    getPlayerNames(player: MatchPlayer | MatchPlayer[]){
-        if(player instanceof Array){
+    getPlayerNames(player: MatchPlayer | MatchPlayer[]) {
+        if (player instanceof Array) {
             const doublesPlayers = player as MatchPlayer[];
             return `${doublesPlayers[0].lastName} / ${doublesPlayers[1].lastName} (${doublesPlayers[0].ranking}/${doublesPlayers[1].ranking})`;
         } else {

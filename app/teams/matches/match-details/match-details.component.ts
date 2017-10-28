@@ -117,7 +117,7 @@ export class MatchDetailsComponent implements OnInit {
             let awayValue = 0;
 
             // Switch values if away wins
-            if(result.homeSetCount < result.awaySetCount){
+            if(result.homeSetCount < result.awaySetCount || result.isHomeForfeited){
                 homeValue = 0;
                 awayValue = 1;
             }
