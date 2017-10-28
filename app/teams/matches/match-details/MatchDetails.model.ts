@@ -56,7 +56,7 @@ export class IndividualMatchResult {
     private _setScores(value: string){
         this._splittedSetResults = (value || "").split(",").map((setResult) => {
             const score = setResult.substring(setResult.indexOf("|") + 1);
-            const scoreNumber = parseInt(score);
+            const scoreNumber = Math.abs(parseInt(score));
 
             return {
                 score: scoreNumber,
