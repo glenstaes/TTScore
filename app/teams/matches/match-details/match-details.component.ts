@@ -3,7 +3,7 @@ import { ActivatedRoute } from "@angular/router";
 import { RouterExtensions } from "nativescript-angular/router";
 import { TeamMatch } from "../TeamMatch.model";
 import { TeamMatchesService } from "../teammatches.service";
-import { IndividualMatchResult } from "./MatchDetails.model";
+import { IndividualMatchResult, MatchPlayer } from "./MatchDetails.model";
 
 @Component({
     templateUrl: "teams/matches/match-details/match-details.component.html"
@@ -62,6 +62,21 @@ export class MatchDetailsComponent implements OnInit {
                 this.customMessage = "Fout. Vernieuw de lijst met wedstrijden in het vorige scherm.";
             }
         });
+    }
+
+    /**
+     * Gets the player(s) from the list of players for the provided player match index.
+     * @param players The list of players
+     * @param index The index of the player(s) to fetch
+     */
+    public getPlayer(players: MatchPlayer[], index: number | Array<number>): MatchPlayer | MatchPlayer[]{
+        if(!isNaN(index as any)){
+            return players[index as number - 1];
+        } else {
+            return (index as Array<number>).map((number) => {
+                return players[number - 1];
+            });
+        }
     }
 
     /**

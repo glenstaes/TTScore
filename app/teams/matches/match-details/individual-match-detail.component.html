@@ -1,7 +1,7 @@
 <GridLayout columns="30, *" rows="auto, auto, auto">
     <Label [class.strong]="result.homeSetCount > result.awaySetCount" row="0" col="0" [text]="result.homeSetCount"></Label>
-    <Label [class.strong]="result.homeSetCount > result.awaySetCount" row="0" col="1" text="{{ homePlayer.firstName }} {{ homePlayer.lastName }} ({{ homePlayer.ranking }})"></Label>
+    <Label [class.strong]="result.homeSetCount > result.awaySetCount" row="0" col="1" [text]="getPlayerNames(homePlayer)"></Label>
     <Label [class.strong]="result.awaySetCount > result.homeSetCount" row="1" col="0" [text]="result.awaySetCount"></Label>
-    <Label [class.strong]="result.awaySetCount > result.homeSetCount" row="1" col="1" text="{{ awayPlayer.firstName }} {{ awayPlayer.lastName }} ({{ awayPlayer.ranking }})"></Label>
+    <Label [class.strong]="result.awaySetCount > result.homeSetCount" row="1" col="1" [text]="getPlayerNames(awayPlayer)"></Label>
     <Label row="2" col="1" *ngIf="!collapseScores" [text]="getMatchScores()"></Label>
 </GridLayout>

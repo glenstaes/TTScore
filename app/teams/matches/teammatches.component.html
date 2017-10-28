@@ -5,7 +5,7 @@
 <StackLayout class="page">
     <Label class="p-10" [text]="currentTeam?.divisionName"></Label>
     <ActivityIndicator *ngIf="isLoadingMatches" busy="true" width="100" height="100"></ActivityIndicator>
-    <ListView #rankingListView [items]="matches" class="list-group">
+    <ListView #rankingListView [items]="matches" class="list-group" (itemTap)="onTapMatch($event)">
         <ng-template let-item="item">
             <GridLayout columns="*, auto" rows="auto, auto" orientation="horizontal" class="p-10">
                 <Label class="h3" text="Week {{ item.weekName }}"></Label>

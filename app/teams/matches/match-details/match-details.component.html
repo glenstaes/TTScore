@@ -52,7 +52,7 @@
                     <ng-template let-item="item">
                         <GridLayout columns="*, 50" rows="auto" orientation="horizontal" class="p-10">
                             <StackLayout>
-                                <individual-match-result [collapseScores]="!currentIndividualResult || currentIndividualResult.position !== item.position" [homePlayer]="match.details.homePlayers.players[item.homePlayerMatchIndex - 1]" [awayPlayer]="match.details.awayPlayers.players[item.awayPlayerMatchIndex - 1]" [result]="item"></individual-match-result>
+                                <individual-match-result [collapseScores]="!currentIndividualResult || currentIndividualResult.position !== item.position" [homePlayer]="getPlayer(match.details.homePlayers.players, item.homePlayerMatchIndex)" [awayPlayer]="getPlayer(match.details.awayPlayers.players, item.awayPlayerMatchIndex)" [result]="item"></individual-match-result>
                             </StackLayout>
                             <StackLayout class="text-right" col="1">
                                 <Label [text]="getMatchTotal(item)"></Label>

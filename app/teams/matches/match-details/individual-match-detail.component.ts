@@ -16,10 +16,10 @@ import { MatchPlayer, IndividualMatchResult } from "./MatchDetails.model";
 
 export class IndividualMatchDetailComponent {
     @Input()
-    homePlayer: MatchPlayer;
+    homePlayer: MatchPlayer | MatchPlayer[];
 
     @Input()
-    awayPlayer: MatchPlayer;
+    awayPlayer: MatchPlayer | MatchPlayer[];
 
     @Input()
     result: IndividualMatchResult;
@@ -33,20 +33,31 @@ export class IndividualMatchDetailComponent {
     getMatchScores(){
         return this.result.scores.map((score) => {
             let oppositeScore = 11;
-            const absoluteScore = Math.abs(score);
             
-            // When the absolute score is greater than 10, the score of the opponent should be 2 points higher, otherwise it's 11.
-            if(absoluteScore >= 10){
-                oppositeScore = absoluteScore + 2;
+            // When the score is greater than 10, the score of the opponent should be 2 points higher, otherwise it's 11.
+            if(score.score >= 10){
+                oppositeScore = score.score + 2;
             }
 
-            // If score is negative, the away player won.
-            // If score is positive, the home player won.
-            if(score > 0){
-                return `${oppositeScore}-${absoluteScore}`;
+            if(score.isHomeWin){
+                return `${oppositeScore}-${score.score}`;
             } else {
-                return `${absoluteScore}-${oppositeScore}`;
+                return `${score.score}-${oppositeScore}`;
             }
         }).join(", ");
+    }
+
+    /**
+     * Gets the names of the player(s) to display.
+     * @param player The player(s) to get the names for
+     */
+    getPlayerNames(player: MatchPlayer | MatchPlayer[]){
+        if(player instanceof Array){
+            const doublesPlayers = player as MatchPlayer[];
+            return `${doublesPlayers[0].lastName} / ${doublesPlayers[1].lastName} (${doublesPlayers[0].ranking}/${doublesPlayers[1].ranking})`;
+        } else {
+            const singlePlayer = player as MatchPlayer;
+            return `${singlePlayer.firstName} ${singlePlayer.lastName} (${singlePlayer.ranking})`;
+        }
     }
 }

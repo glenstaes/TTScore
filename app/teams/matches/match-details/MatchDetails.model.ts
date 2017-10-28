@@ -33,10 +33,10 @@ export class MatchPlayer {
 }
 
 export class IndividualMatchResult {
-    private _splittedSetResults: Array<number>;
+    private _splittedSetResults: Array<ISetScore>;
     private _scores: string;
     
-    public get scores(): Array<number>{
+    public get scores(): Array<ISetScore>{
         return this._splittedSetResults;
     }
 
@@ -55,7 +55,18 @@ export class IndividualMatchResult {
 
     private _setScores(value: string){
         this._splittedSetResults = (value || "").split(",").map((setResult) => {
-            return parseInt(setResult.substring(setResult.indexOf("|") + 1));
+            const score = setResult.substring(setResult.indexOf("|") + 1);
+            const scoreNumber = parseInt(score);
+
+            return {
+                score: scoreNumber,
+                isHomeWin: score.indexOf("-") === -1
+            }
         });
     }
+}
+
+export interface ISetScore {
+    score: number;
+    isHomeWin: boolean;
 }
