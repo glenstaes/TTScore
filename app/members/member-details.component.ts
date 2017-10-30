@@ -8,16 +8,7 @@ import { ClubMemberService } from "../members/clubmember.service";
 let appSettings = require("application-settings");
 
 @Component({
-    templateUrl: "members/member-details.component.html",
-    styles: [`
-        .victory{
-            background-color: #ceffd9;
-        }
-
-        .defeat {
-            background-color: #ffcece;
-        }
-    `]
+    templateUrl: "members/member-details.component.html"
 })
 
 /**
