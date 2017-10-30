@@ -1,6 +1,8 @@
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { RouterExtensions } from "nativescript-angular/router";
+
+import { SettingsService } from "../../../settings/settings.service";
 import { TeamMatch } from "../TeamMatch.model";
 import { TeamMatchesService } from "../teammatches.service";
 import { IndividualMatchResult, MatchPlayer } from "./MatchDetails.model";
@@ -38,7 +40,8 @@ export class MatchDetailsComponent implements OnInit {
     constructor(
         private _teamMatchesService: TeamMatchesService,
         private _activatedRoute: ActivatedRoute,
-        private _routerExtensions: RouterExtensions
+        private _routerExtensions: RouterExtensions,
+        private _settingsService: SettingsService
     ){
         
     }
@@ -83,7 +86,7 @@ export class MatchDetailsComponent implements OnInit {
      * Loads the match from TabT
      */
     private _loadFromTabT(){
-        return this._teamMatchesService.getMatchDetails(this._matchUniqueIndex, this._divisionId).map((match) => {
+        return this._teamMatchesService.getMatchDetails(this._matchUniqueIndex, this._divisionId, this._settingsService.currentSeason.id).map((match) => {
             this.match = match;
             this._processMatchTotals();
         });

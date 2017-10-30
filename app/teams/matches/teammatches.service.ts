@@ -49,12 +49,14 @@ export class TeamMatchesService {
      * Gets the details of a match from the TabT database.
      * @param matchId The unique identifier of the match
      * @param divisionId The unique identifier of the division the match belongs to
+     * @param seasonId The season the match belongs to
      */
-    getMatchDetails(matchId: number, divisionId: number): Observable<TeamMatch>{
+    getMatchDetails(matchId: number, divisionId: number, seasonId: number): Observable<TeamMatch>{
         let params: URLSearchParams = new URLSearchParams();
         params.set("action", "GetMatches");
         params.set("MatchUniqueId", matchId.toString());
         params.set("WithDetails", true.toString());
+        params.set("Season", seasonId.toString());
 
         let requestOptions = new RequestOptions({
             search: params
