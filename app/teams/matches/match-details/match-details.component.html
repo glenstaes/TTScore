@@ -10,7 +10,7 @@
             <StackLayout *tabItem="{title: match.homeTeam}">
                 <ListView [items]="match.details.homePlayers.players">
                     <ng-template let-item="item">
-                        <GridLayout columns="30, 30, *, 30" rows="auto" orientation="horizontal" class="p-10">
+                        <GridLayout columns="30, 30, *, 30" rows="auto, auto" orientation="horizontal" class="p-10">
                             <StackLayout col="0">
                                 <Label class="h3" [text]="item.position"></Label>
                             </StackLayout>
@@ -22,6 +22,12 @@
                             </StackLayout>
                             <StackLayout col="3">
                                 <label class="h3" [text]="item.victoryCount"></label>
+                            </StackLayout>
+                            <StackLayout row="1" col="2">
+                                <GridLayout [class.color-green]="result.isVictory" [class.color-red]="!result.isVictory" *ngFor="let result of getPlayerResults(item, true)" columns="*, 60" rows="auto" orientation="horizontal">
+                                    <Label [text]="result.opponent"></Label>
+                                    <Label col="1" [text]="result.result"></Label>
+                                </GridLayout>
                             </StackLayout>
                         </GridLayout>
                     </ng-template>
@@ -30,7 +36,7 @@
             <StackLayout *tabItem="{title: match.awayTeam}">
                 <ListView [items]="match.details.awayPlayers.players">
                     <ng-template let-item="item">
-                        <GridLayout columns="30, 30, *, 30" rows="auto" orientation="horizontal" class="p-10">
+                        <GridLayout columns="30, 30, *, 30" rows="auto, auto" orientation="horizontal" class="p-10">
                             <StackLayout col="0">
                                 <Label class="h3" [text]="item.position"></Label>
                             </StackLayout>
@@ -43,16 +49,24 @@
                             <StackLayout col="3">
                                 <label class="h3" [text]="item.victoryCount"></label>
                             </StackLayout>
+                            <StackLayout row="1" col="2">
+                                    <GridLayout [class.color-green]="result.isVictory" [class.color-red]="!result.isVictory" *ngFor="let result of getPlayerResults(item, false)" columns="*, 60" rows="auto" orientation="horizontal">
+                                        <Label [text]="result.opponent"></Label>
+                                        <Label col="1" [text]="result.result"></Label>
+                                    </GridLayout>
+                                </StackLayout>
                         </GridLayout>
                     </ng-template>
                 </ListView>
             </StackLayout>
-            <StackLayout *tabItem="{title: 'Wedstrijd'}">
+            <StackLayout *tabItem="{title: 'Verloop'}">
                 <ListView [items]="match.details.individualMatchResults" (itemTap)="onTapIndividualMatch($event)">
                     <ng-template let-item="item">
                         <GridLayout columns="*, 50" rows="auto" orientation="horizontal" class="p-10">
                             <StackLayout>
-                                <individual-match-result [collapseScores]="!currentIndividualResult || currentIndividualResult.position !== item.position" [homePlayer]="getPlayer(match.details.homePlayers.players, item.homePlayerMatchIndex)" [awayPlayer]="getPlayer(match.details.awayPlayers.players, item.awayPlayerMatchIndex)" [result]="item"></individual-match-result>
+                                <individual-match-result [collapseScores]="!currentIndividualResult || currentIndividualResult.position !== item.position"
+                                    [homePlayer]="getPlayer(match.details.homePlayers.players, item.homePlayerMatchIndex)" [awayPlayer]="getPlayer(match.details.awayPlayers.players, item.awayPlayerMatchIndex)"
+                                    [result]="item"></individual-match-result>
                             </StackLayout>
                             <StackLayout class="text-right" col="1">
                                 <Label [text]="getMatchTotal(item)"></Label>

@@ -30,6 +30,8 @@ export class MatchDetailsComponent implements OnInit {
     matchStandingsHome: Array<number>;
     matchStandingsAway: Array<number>;
     isLoadingMatch = false;
+
+    // Currently selected items in lists
     currentIndividualResult: IndividualMatchResult;
 
     /**
@@ -42,21 +44,21 @@ export class MatchDetailsComponent implements OnInit {
         private _activatedRoute: ActivatedRoute,
         private _routerExtensions: RouterExtensions,
         private _settingsService: SettingsService
-    ){
-        
+    ) {
+
     }
 
     /**
      * Loads the match from the api.
      */
-    ngOnInit(){
+    ngOnInit() {
         this.isLoadingMatch = true;
 
         this._activatedRoute.params.subscribe((params) => {
-            if(params["matchUniqueIndex"] != "null"){
+            if (params["matchUniqueIndex"] != "null") {
                 this._matchUniqueIndex = +params["matchUniqueIndex"];
                 this._divisionId = +params["divisionId"];
-    
+
                 this._loadFromTabT().subscribe(() => {
                     this.isLoadingMatch = false;
                 });
@@ -72,8 +74,8 @@ export class MatchDetailsComponent implements OnInit {
      * @param players The list of players
      * @param index The index of the player(s) to fetch
      */
-    public getPlayer(players: MatchPlayer[], index: number | Array<number>): MatchPlayer | MatchPlayer[]{
-        if(!isNaN(index as any)){
+    public getPlayer(players: MatchPlayer[], index: number | Array<number>): MatchPlayer | MatchPlayer[] {
+        if (!isNaN(index as any)) {
             return players[index as number - 1];
         } else {
             return (index as Array<number>).map((number) => {
@@ -85,7 +87,7 @@ export class MatchDetailsComponent implements OnInit {
     /**
      * Loads the match from TabT
      */
-    private _loadFromTabT(){
+    private _loadFromTabT() {
         return this._teamMatchesService.getMatchDetails(this._matchUniqueIndex, this._divisionId, this._settingsService.currentSeason.id).map((match) => {
             this.match = match;
             this._processMatchTotals();
@@ -95,7 +97,7 @@ export class MatchDetailsComponent implements OnInit {
     /**
      * Returns to the previous page.
      */
-    onTapBackIcon(){
+    onTapBackIcon() {
         this._routerExtensions.back();
     }
 
@@ -103,24 +105,24 @@ export class MatchDetailsComponent implements OnInit {
      * Gets the match score at a given point during the match.
      * @param individualMatch The individual match to return the total match score for
      */
-    getMatchTotal(individualMatch: IndividualMatchResult){
+    getMatchTotal(individualMatch: IndividualMatchResult) {
         return `${this.matchStandingsHome[individualMatch.position - 1]} - ${this.matchStandingsAway[individualMatch.position - 1]}`;
     }
 
     /**
      * Processes the match totals that should be displayed
      */
-    private _processMatchTotals(){
+    private _processMatchTotals() {
         this.matchStandingsAway = [];
         this.matchStandingsHome = [];
-        
+
         this.match.details.individualMatchResults.forEach((result, index) => {
             // Start with home victory
             let homeValue = 1;
             let awayValue = 0;
 
             // Switch values if away wins
-            if(result.homeSetCount < result.awaySetCount || result.isHomeForfeited){
+            if (result.homeSetCount < result.awaySetCount || result.isHomeForfeited) {
                 homeValue = 0;
                 awayValue = 1;
             }
@@ -134,17 +136,53 @@ export class MatchDetailsComponent implements OnInit {
      * Callback for when an individual match is tapped in the list.
      * @param event Event data
      */
-    onTapIndividualMatch(event){
+    onTapIndividualMatch(event) {
         this.currentIndividualResult = this.match.details.individualMatchResults[event.index];
+    }
+
+    /**
+     * Gets the results for a player in a team
+     * @param player The player to get the results for
+     * @param isHome Whether it's a player from the home team
+     */
+    getPlayerResults(player: MatchPlayer, isHome: boolean) {
+        // Get the matches for the player
+        return this.match.details.individualMatchResults.filter((individualMatch) => {
+            return isHome ?
+                individualMatch.homePlayerMatchIndex === player.position :
+                individualMatch.awayPlayerMatchIndex === player.position;
+        }).map((playerMatch) => {
+            if (isHome) {
+                // Get the opponent of the match
+                const opponent = this.getPlayer(this.match.details.awayPlayers.players, playerMatch.awayPlayerMatchIndex) as MatchPlayer;
+
+                // Get the match result
+                return {
+                    isVictory: playerMatch.isAwayForfeited || playerMatch.homeSetCount > playerMatch.awaySetCount,
+                    result: playerMatch.isHomeForfeited || playerMatch.isAwayForfeited ? "FF" : playerMatch.homeSetCount + "-" + playerMatch.awaySetCount,
+                    opponent: opponent.firstName + " " + opponent.lastName
+                };
+            } else {
+                // Get the opponent of the match
+                const opponent = this.getPlayer(this.match.details.homePlayers.players, playerMatch.homePlayerMatchIndex) as MatchPlayer;
+
+                // Get the match result
+                return {
+                    isVictory: playerMatch.isHomeForfeited || playerMatch.awaySetCount > playerMatch.homeSetCount,
+                    result: playerMatch.isHomeForfeited || playerMatch.isAwayForfeited ? "FF" : playerMatch.awaySetCount + "-" + playerMatch.homeSetCount,
+                    opponent: opponent.firstName + " " + opponent.lastName
+                };
+            }
+        });
     }
 
     /**
      * Callback for when the refresh icon is tapped.
      */
-    onTapRefreshIcon(){
+    onTapRefreshIcon() {
         this.isLoadingMatch = true;
         this.match = undefined;
-        
+
         this._loadFromTabT().subscribe(() => {
             this.isLoadingMatch = false;
         });
