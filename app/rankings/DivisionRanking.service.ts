@@ -50,10 +50,12 @@ export class DivisionRankingService {
                 if (exists) {
                     this._update(rankingEntry, divisionId).subscribe((saved) => {
                         observer.next(rankingEntry);
+                        observer.complete();
                     });
                 } else {
                     this._create(rankingEntry, divisionId).subscribe((saved) => {
                         observer.next(rankingEntry);
+                        observer.complete();
                     });
                 }
             })

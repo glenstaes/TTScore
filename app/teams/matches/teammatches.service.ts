@@ -132,10 +132,12 @@ export class TeamMatchesService {
                 if (exists) {
                     this._update(match).subscribe((saved) => {
                         observer.next(match);
+                        observer.complete();
                     });
                 } else {
                     this._create(match).subscribe((saved) => {
                         observer.next(match);
+                        observer.complete();
                     });
                 }
             })

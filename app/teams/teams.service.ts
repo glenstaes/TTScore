@@ -53,10 +53,12 @@ export class TeamsService {
                 if (exists) {
                     this._update(team).subscribe((saved) => {
                         observer.next(team);
+                        observer.complete();
                     });
                 } else {
                     this._create(team, clubId, seasonId).subscribe((saved) => {
                         observer.next(team);
+                        observer.complete();
                     });
                 }
             })

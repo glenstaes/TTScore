@@ -118,10 +118,12 @@ export class ClubsService {
                 if (exists) {
                     this._update(club).subscribe((saved) => {
                         observer.next(club);
+                        observer.complete();
                     });
                 } else {
                     this._create(club).subscribe((saved) => {
                         observer.next(club);
+                        observer.complete();
                     });
                 }
             })

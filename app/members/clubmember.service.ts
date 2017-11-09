@@ -51,10 +51,12 @@ export class ClubMemberService {
                 if (exists) {
                     this._update(member, clubId, seasonId).subscribe((saved) => {
                         observer.next(member);
+                        observer.complete();
                     });
                 } else {
                     this._create(member, clubId, seasonId).subscribe((saved) => {
                         observer.next(member);
+                        observer.complete();
                     });
                 }
             })
