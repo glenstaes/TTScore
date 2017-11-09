@@ -157,26 +157,7 @@ export class ClubMemberService {
             let members = [];
 
             jsonResponse.MemberEntries.forEach((memberEntry: TabTClubMember) => {
-                members.push(new ClubMember(
-                    memberEntry.Position,
-                    memberEntry.UniqueIndex,
-                    memberEntry.RankingIndex,
-                    memberEntry.FirstName,
-                    memberEntry.LastName,
-                    memberEntry.Ranking,
-                    (memberEntry.ResultEntries || []).map((resultEntry) => {
-                        return new ClubMemberResultEntry(
-                            resultEntry.Date,
-                            resultEntry.UniqueIndex,
-                            resultEntry.FirstName,
-                            resultEntry.LastName,
-                            resultEntry.Ranking,
-                            resultEntry.Result,
-                            resultEntry.SetFor,
-                            resultEntry.SetAgainst
-                        );
-                    })
-                ));
+                members.push(ClubMember.createFromApi(memberEntry));
             });
 
             return members.length ? members[0] : undefined;
@@ -204,26 +185,7 @@ export class ClubMemberService {
             let members = [];
 
             jsonResponse.MemberEntries.forEach((memberEntry: TabTClubMember) => {
-                members.push(new ClubMember(
-                    memberEntry.Position,
-                    memberEntry.UniqueIndex,
-                    memberEntry.RankingIndex,
-                    memberEntry.FirstName,
-                    memberEntry.LastName,
-                    memberEntry.Ranking,
-                    (memberEntry.ResultEntries || []).map((resultEntry) => {
-                        return new ClubMemberResultEntry(
-                            resultEntry.Date,
-                            resultEntry.UniqueIndex,
-                            resultEntry.FirstName,
-                            resultEntry.LastName,
-                            resultEntry.Ranking,
-                            resultEntry.Result,
-                            resultEntry.SetFor,
-                            resultEntry.SetAgainst
-                        );
-                    })
-                ));
+                members.push(ClubMember.createFromApi(memberEntry));
             });
 
             return members;
@@ -253,7 +215,7 @@ interface TabTClubMembersResponse {
     MemberEntries: Array<TabTClubMember>;
 }
 
-interface TabTClubMemberResultEntryResponse{
+export interface TabTClubMemberResultEntryResponse{
     Date?: string;
     UniqueIndex: number;
     FirstName: string;
@@ -264,7 +226,7 @@ interface TabTClubMemberResultEntryResponse{
     SetAgainst: number;
 }
 
-interface TabTClubMember {
+export interface TabTClubMember {
     Position: number;
     UniqueIndex: number;
     RankingIndex: number;

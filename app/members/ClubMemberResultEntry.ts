@@ -1,3 +1,4 @@
+import { TabTClubMemberResultEntryResponse } from "./clubmember.service";
 /**
  * This class represents an entry in the results of a club member.
  * @property {string} date - The play date
@@ -44,5 +45,22 @@ export class ClubMemberResultEntry {
             return `${this.setsFor}-${this.setsAgainst}`;
         }
         return "";
+    }
+
+    /**
+     * 
+     * @param resultEntry The result entry returned by the API.
+     */
+    static createFromApi(resultEntry: TabTClubMemberResultEntryResponse): ClubMemberResultEntry {
+        return new ClubMemberResultEntry(
+            resultEntry.Date,
+            resultEntry.UniqueIndex,
+            resultEntry.FirstName,
+            resultEntry.LastName,
+            resultEntry.Ranking,
+            resultEntry.Result,
+            resultEntry.SetFor,
+            resultEntry.SetAgainst
+        );
     }
 }

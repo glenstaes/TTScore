@@ -1,4 +1,6 @@
 import { ClubMemberResultEntry } from "./ClubMemberResultEntry";
+import { TabTClubMember } from "./clubmember.service";
+
 /**
  * This class represents the member of a club
  * @property {number} position - The position on the member list.
@@ -18,12 +20,30 @@ export class ClubMember {
         public lastName: string,
         public ranking: string,
         public resultEntries: Array<ClubMemberResultEntry> = []
-    ){}
+    ){ }
 
     /**
      * Prints out the concatenated first name and last name of the member.
      */
     toString(){
         return `${this.firstName} ${this.lastName}`
+    }
+
+    /**
+     * Creates a new instance based on the entry returned by the API.
+     * @param memberEntry A member entry returned by the API
+     */
+    static createFromApi(memberEntry: TabTClubMember): ClubMember {
+        return new ClubMember(
+            memberEntry.Position,
+            memberEntry.UniqueIndex,
+            memberEntry.RankingIndex,
+            memberEntry.FirstName,
+            memberEntry.LastName,
+            memberEntry.Ranking,
+            (memberEntry.ResultEntries || []).map((resultEntry) => {
+                return ClubMemberResultEntry.createFromApi(resultEntry);
+            })
+        );
     }
 }
