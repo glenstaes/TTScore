@@ -13,7 +13,7 @@
                     <StackLayout col="2">
                         <GridLayout *ngFor="let match of item.matches" [class.color-green]="match.resultIndicator === 'V'" [class.color-red]="match.resultIndicator === 'D'"
                             columns="*, 60" rows="auto" orientation="horizontal">
-                            <Label text="{{ match.firstName }} {{ match.lastName }}"></Label>
+                            <Label text="{{ match.result }} / {{ match.firstName }} {{ match.lastName }}"></Label>
                         </GridLayout>
                     </StackLayout>
                 </GridLayout>
@@ -22,10 +22,10 @@
         <ListView *tabItem="{title: 'Wedstrijden'}" #resultsListView [items]="member?.resultEntries" class="list-group">
             <ng-template let-item="item">
                 <GridLayout class="p-5" [class.background-green]="item.resultIndicator === 'V'" [class.background-red]="item.resultIndicator === 'D'"
-                    rows="auto, auto" columns="70, *">
-                    <Label col="1" [text]="item.date"></Label>
-                    <Label row="1" col="0" [text]="item.ranking"></Label>
-                    <Label row="1" col="1" text="{{ item.firstName }} {{ item.lastName }}"></Label>
+                    rows="auto" columns="120, *, 50">
+                    <Label col="0" [text]="item.date"></Label>
+                    <Label col="1" text="{{ item.firstName }} {{ item.lastName }} ({{ item.ranking }})"></Label>
+                    <Label col="2" [text]="item.result"></Label>
                 </GridLayout>
             </ng-template>
         </ListView>

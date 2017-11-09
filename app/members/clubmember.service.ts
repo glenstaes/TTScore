@@ -171,7 +171,9 @@ export class ClubMemberService {
                             resultEntry.FirstName,
                             resultEntry.LastName,
                             resultEntry.Ranking,
-                            resultEntry.Result
+                            resultEntry.Result,
+                            resultEntry.SetFor,
+                            resultEntry.SetAgainst
                         );
                     })
                 ));
@@ -216,7 +218,9 @@ export class ClubMemberService {
                             resultEntry.FirstName,
                             resultEntry.LastName,
                             resultEntry.Ranking,
-                            resultEntry.Result
+                            resultEntry.Result,
+                            resultEntry.SetFor,
+                            resultEntry.SetAgainst
                         );
                     })
                 ));
@@ -256,6 +260,8 @@ interface TabTClubMemberResultEntryResponse{
     LastName: string;
     Ranking: string;
     Result: string;
+    SetFor: number;
+    SetAgainst: number;
 }
 
 interface TabTClubMember {
