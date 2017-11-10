@@ -40,7 +40,9 @@ export class MemberDetailsComponent {
     ngOnInit() {
         this._activatedRoute.params.subscribe((params) => {
             this.memberId = +params["uniqueIndex"];
+            this.isLoading = true;
             this._loadFromTabT().subscribe(() => {
+                this.isLoading = false;
                 this.calculateOverview();
             });
         })
