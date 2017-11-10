@@ -10,6 +10,7 @@ import { Club, ClubCategory } from "./club.model";
 import { ClubVenue } from "./clubvenue.model";
 import { Season } from "../seasons/season.model";
 import { SeasonsService } from "../seasons/seasons.service";
+import { nextAndComplete } from "../helpers";
 
 @Injectable()
 export class ClubsService {
@@ -29,8 +30,7 @@ export class ClubsService {
         return new Observable<Club[]>((observer) => {
             this.db.all(`SELECT * FROM clubs ORDER BY uniqueId`).subscribe((rows) => {
                 this._processClubsFromDatabase(rows).subscribe((clubs) => {
-                    observer.next(clubs);
-                    observer.complete();
+                    nextAndComplete(observer, clubs)();
                 });
             });
         });
@@ -45,8 +45,7 @@ export class ClubsService {
         return new Observable<Club[]>((observer) => {
             this.db.all(`SELECT * FROM clubs WHERE seasonId = ? ORDER BY uniqueId`, [seasonId]).subscribe((rows) => {
                 this._processClubsFromDatabase(rows).subscribe((clubs) => {
-                    observer.next(clubs);
-                    observer.complete();
+                    nextAndComplete(observer, clubs)();
                 });
             });
         });
@@ -61,8 +60,7 @@ export class ClubsService {
     private _processClubsFromDatabase(rows) {
         return Observable.create((observer) => {
             if (rows.length === 0) {
-                observer.next([]);
-                observer.complete();
+                nextAndComplete(observer, [])();
             } else {
                 let clubs = [];
                 let loadDependenciesObservables: Array<Observable<Season>> = [];
@@ -79,8 +77,7 @@ export class ClubsService {
                         club.parentSeason = seasons[index];
                     });
 
-                    observer.next(clubs);
-                    observer.complete();
+                    nextAndComplete(observer, clubs)();
                 });
             }
         });
@@ -99,8 +96,7 @@ export class ClubsService {
             } else {
                 this.db.all(`SELECT * FROM clubs WHERE uniqueId = ? AND seasonId = ?`, [clubId, seasonId]).subscribe((rows) => {
                     this._processClubsFromDatabase(rows).subscribe((clubs) => {
-                        observer.next(clubs.length ? clubs[0] : undefined);
-                        observer.complete();
+                        nextAndComplete(observer, clubs.length ? clubs[0] : undefined)();
                     });
                 });
             }
@@ -115,18 +111,8 @@ export class ClubsService {
     save(club: Club): Observable<Club> {
         return new Observable((observer) => {
             this.exists(club).subscribe((exists) => {
-                if (exists) {
-                    this._update(club).subscribe((saved) => {
-                        observer.next(club);
-                        observer.complete();
-                    });
-                } else {
-                    this._create(club).subscribe((saved) => {
-                        observer.next(club);
-                        observer.complete();
-                    });
-                }
-            })
+                (exists ?  this._update(club) : this._create(club)).subscribe(nextAndComplete(observer, club));
+            });
         });
     }
 
@@ -138,8 +124,7 @@ export class ClubsService {
     exists(club: Club): Observable<boolean> {
         return new Observable((observer) => {
             this.get(club.uniqueIndex, club.seasonId).subscribe((club) => {
-                observer.next(typeof club === "undefined" ? false : true);
-                observer.complete();
+                nextAndComplete(observer, typeof club === "undefined" ? false : true)();
             });
         });
     }
@@ -152,8 +137,7 @@ export class ClubsService {
     private _create(club: Club) {
         return new Observable<boolean>((observer) => {
             this.db.execSQL(`INSERT INTO clubs VALUES (?,?,?,?,?)`, [club.uniqueIndex, club.seasonId, club.name, club.longName, club.category.id]).subscribe((rows) => {
-                observer.next(rows ? true : false);
-                observer.complete();
+                nextAndComplete(observer, rows ? true : false)();
             });
         });
     }
@@ -166,8 +150,7 @@ export class ClubsService {
     private _update(club: Club) {
         return new Observable<boolean>((observer) => {
             this.db.execSQL(`UPDATE clubs SET name = ?, longName = ?, categoryId = ? WHERE uniqueId = ?`, [club.name, club.longName, club.category.id, club.uniqueIndex]).subscribe((rows) => {
-                observer.next(rows ? true : false);
-                observer.complete();
+                nextAndComplete(observer, rows ? true : false)();
             });
         });
     }

@@ -7,6 +7,7 @@ import { Team } from "../team.model";
 import { TeamsService } from "../teams.service";
 import { Club } from "../../clubs/club.model";
 import { ClubsService } from "../../clubs/clubs.service";
+import { nextAndComplete } from "../../helpers";
 
 @Injectable()
 /**
@@ -45,8 +46,7 @@ export class FavoritesService {
         return new Observable<Team>((observer) => {
             this.db.all(`SELECT * FROM teamfavorites WHERE teamId = ?`, [team.teamId]).subscribe((rows) => {
                 this._processTeamFavoritesFromDatabase(rows).subscribe((favorites) => {
-                    observer.next(favorites.length ? favorites[0] : undefined);
-                    observer.complete();
+                    nextAndComplete(observer, favorites.length ? favorites[0] : undefined)();
                 });
             });
         });
@@ -60,8 +60,7 @@ export class FavoritesService {
         return new Observable<Array<Team>>((observer) => {
             this.db.all(`SELECT * FROM teamfavorites`).subscribe((rows) => {
                 this._processTeamFavoritesFromDatabase(rows).subscribe((favorites) => {
-                    observer.next(favorites);
-                    observer.complete();
+                    nextAndComplete(observer, favorites)();
                 });
             });
         });
@@ -74,8 +73,7 @@ export class FavoritesService {
     delete(team: Team){
         return new Observable<boolean>((observer) => {
             this.db.all(`DELETE FROM teamfavorites WHERE teamId = ?`, [team.teamId]).subscribe((rows) => {
-                observer.next(rows ? true : false);
-                observer.complete();
+                nextAndComplete(observer, rows ? true : false)();
             });
         });
     }
@@ -86,8 +84,7 @@ export class FavoritesService {
     deleteAll(){
         return new Observable<boolean>((observer) => {
             this.db.all(`DELETE FROM teamfavorites`).subscribe((rows) => {
-                observer.next(rows ? true : false);
-                observer.complete();
+                nextAndComplete(observer, rows ? true : false)();
             });
         });
     }
@@ -100,8 +97,7 @@ export class FavoritesService {
     exists(team: Team): Observable<boolean> {
         return new Observable<boolean>((observer) => {
             this.get(team).subscribe((team) => {
-                observer.next(typeof team !== "undefined");
-                observer.complete();
+                nextAndComplete(observer, typeof team !== "undefined")();
             });
         });
     }
@@ -118,8 +114,7 @@ export class FavoritesService {
             this.db.execSQL(`INSERT INTO teamfavorites VALUES (?,?,?)`, [
                 seasonId, clubId, team.teamId
             ]).subscribe((rows) => {
-                observer.next(rows ? true : false);
-                observer.complete();
+                nextAndComplete(observer, rows ? true : false)();
             });
         });
     }
@@ -156,8 +151,7 @@ export class FavoritesService {
                     teams.push(team);
                 });
 
-                observer.next(teams);
-                observer.complete();
+                nextAndComplete(observer, teams)();
             });
         });
     }

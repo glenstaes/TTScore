@@ -5,6 +5,7 @@ import { Observable } from "rxjs/Rx";
 import { DatabaseService } from "../database/database.service";
 import { Season } from "../seasons/Season.model";
 import { DivisionRanking } from "./DivisionRanking.model";
+import { nextAndComplete } from "../helpers";
 
 @Injectable()
 
@@ -31,9 +32,7 @@ export class DivisionRankingService {
         return new Observable<DivisionRanking>((observer) => {
             this.db.all(`SELECT * FROM divisionrankings WHERE divisionId = ? AND position = ?`, [divisionId, position]).subscribe((rows) => {
                 const rankings = this._processDivisionRankingsFromDatabase(rows);
-
-                observer.next(rankings.length ? rankings[0] : undefined);
-                observer.complete();
+                nextAndComplete(observer, rankings.length ? rankings[0] : undefined)();
             });
         });
     }
@@ -47,18 +46,8 @@ export class DivisionRankingService {
     save(rankingEntry: DivisionRanking, divisionId: number): Observable<DivisionRanking> {
         return new Observable((observer) => {
             this.exists(rankingEntry, divisionId).subscribe((exists) => {
-                if (exists) {
-                    this._update(rankingEntry, divisionId).subscribe((saved) => {
-                        observer.next(rankingEntry);
-                        observer.complete();
-                    });
-                } else {
-                    this._create(rankingEntry, divisionId).subscribe((saved) => {
-                        observer.next(rankingEntry);
-                        observer.complete();
-                    });
-                }
-            })
+                (exists ? this._update(rankingEntry, divisionId) : this._create(rankingEntry, divisionId)).subscribe(nextAndComplete(observer, rankingEntry));
+            });
         });
     }
 
@@ -71,8 +60,7 @@ export class DivisionRankingService {
     exists(rankingEntry: DivisionRanking, divisionId: number): Observable<boolean> {
         return new Observable((observer) => {
             this.get(divisionId, rankingEntry.position).subscribe((member) => {
-                observer.next(typeof member === "undefined" ? false : true);
-                observer.complete();
+                nextAndComplete(observer, typeof member === "undefined" ? false : true)();
             });
         });
     }
@@ -100,8 +88,7 @@ export class DivisionRankingService {
                 rankingEntry.points,
                 rankingEntry.teamClubId
             ]).subscribe((rows) => {
-                observer.next(rows ? true : false);
-                observer.complete();
+                nextAndComplete(observer, rows ? true : false)();
             });
         });
     }
@@ -133,8 +120,7 @@ export class DivisionRankingService {
                     divisionId,
                     rankingEntry.position
                 ]).subscribe((rows) => {
-                    observer.next(rows ? true : false);
-                    observer.complete();
+                    nextAndComplete(observer, rows ? true : false)();
                 });
         });
     }
@@ -147,8 +133,7 @@ export class DivisionRankingService {
     getAllByDivision(divisionId: number) {
         return new Observable<Array<DivisionRanking>>((observer) => {
             this.db.all(`SELECT * FROM divisionrankings WHERE divisionId = ? ORDER BY position`, [divisionId]).subscribe((rows) => {
-                observer.next(this._processDivisionRankingsFromDatabase(rows));
-                observer.complete();
+                nextAndComplete(observer, this._processDivisionRankingsFromDatabase(rows))();
             });
         });
     }
@@ -217,10 +202,7 @@ export class DivisionRankingService {
         return new Observable<Array<DivisionRanking>>((observer) => {
             this.getAllFromTabT(divisionId).subscribe((rankingEntries) => {
                 rankingEntries.forEach((rankingEntry) => {
-                    this.save(rankingEntry, divisionId).subscribe(() => {
-                        observer.next(rankingEntries);
-                        observer.complete();
-                    });
+                    this.save(rankingEntry, divisionId).subscribe(nextAndComplete(observer, rankingEntries));
                 });
             });
         });

@@ -6,6 +6,7 @@ import { DatabaseService } from "../database/database.service";
 import { Season } from "../seasons/Season.model";
 import { Club } from "../clubs/club.model";
 import { Team } from "./team.model";
+import { nextAndComplete } from "../helpers";
 
 @Injectable()
 /**
@@ -33,8 +34,7 @@ export class TeamsService {
                 this.db.all(`SELECT * FROM teams WHERE teamId = ?`, [teamId]).subscribe((rows) => {
                     const teams = this._processClubTeamsFromDatabase(rows);
 
-                    observer.next(teams.length ? teams[0] : undefined);
-                    observer.complete();
+                    nextAndComplete(observer, teams.length ? teams[0] : undefined)();
                 });
             }
         });
@@ -50,17 +50,7 @@ export class TeamsService {
     save(team: Team, clubId: string, seasonId: number): Observable<Team> {
         return new Observable((observer) => {
             this.exists(team).subscribe((exists) => {
-                if (exists) {
-                    this._update(team).subscribe((saved) => {
-                        observer.next(team);
-                        observer.complete();
-                    });
-                } else {
-                    this._create(team, clubId, seasonId).subscribe((saved) => {
-                        observer.next(team);
-                        observer.complete();
-                    });
-                }
+                (exists ? this._update(team) : this._create(team, clubId, seasonId)).subscribe(nextAndComplete(observer, team));
             })
         });
     }
@@ -72,9 +62,8 @@ export class TeamsService {
      */
     exists(team: Team): Observable<boolean> {
         return new Observable((observer) => {
-            this.get(team.teamId).subscribe((team) => {
-                observer.next(typeof team === "undefined" ? false : true);
-                observer.complete();
+            this.get(team.teamId).subscribe((foundTeam) => {
+                nextAndComplete(observer, typeof foundTeam === "undefined" ? false : true)();
             });
         });
     }
@@ -89,8 +78,7 @@ export class TeamsService {
     private _create(team: Team, clubId: string, seasonId: number) {
         return new Observable<boolean>((observer) => {
             this.db.execSQL(`INSERT INTO teams VALUES (?,?,?,?,?,?,?)`, [team.teamId, team.team, team.divisionId, team.divisionName, team.divisionCategoryId, clubId, seasonId]).subscribe((rows) => {
-                observer.next(rows ? true : false);
-                observer.complete();
+                nextAndComplete(observer, rows ? true : false)();
             });
         });
     }
@@ -104,8 +92,7 @@ export class TeamsService {
         return new Observable<boolean>((observer) => {
             this.db.execSQL(`UPDATE teams SET team = ?, divisionId = ?, divisionName = ?, divisionCategoryId = ? WHERE teamId = ?`,
                 [team.team, team.divisionId, team.divisionName, team.divisionCategoryId, team.teamId]).subscribe((rows) => {
-                    observer.next(rows ? true : false);
-                    observer.complete();
+                    nextAndComplete(observer, rows ? true : false)();
                 });
         });
     }
@@ -123,8 +110,7 @@ export class TeamsService {
 
         return new Observable<Array<Team>>((observer) => {
             this.db.all(`SELECT * FROM teams WHERE clubId = ? AND seasonId = ?`, [club.uniqueIndex, season.id]).subscribe((rows) => {
-                observer.next(this._processClubTeamsFromDatabase(rows));
-                observer.complete();
+                nextAndComplete(observer, this._processClubTeamsFromDatabase(rows))();
             });
         });
     }
@@ -189,14 +175,10 @@ export class TeamsService {
         return new Observable<Array<Team>>((observer) => {
             this.getAllFromTabT(clubId, seasonId).subscribe((teams) => {
                 if(teams.length === 0){
-                    observer.next(teams);
-                    observer.complete();
+                    nextAndComplete(observer, teams)();
                 } else {
                     teams.forEach((team) => {
-                        this.save(team, clubId, seasonId).subscribe(() => {
-                            observer.next(teams);
-                            observer.complete();
-                        });
+                        this.save(team, clubId, seasonId).subscribe(nextAndComplete(observer, teams));
                     });
                 }
             });

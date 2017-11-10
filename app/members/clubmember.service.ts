@@ -7,6 +7,7 @@ import { Season } from "../seasons/Season.model";
 import { Club } from "../clubs/club.model";
 import { ClubMember } from "./ClubMember.model";
 import { ClubMemberResultEntry } from "./ClubMemberResultEntry";
+import { nextAndComplete } from "../helpers";
 
 @Injectable()
 /**
@@ -31,9 +32,7 @@ export class ClubMemberService {
         return new Observable<ClubMember>((observer) => {
             this.db.all(`SELECT * FROM clubmembers WHERE uniqueIndex = ? AND seasonId = ?`, [memberId, seasonId]).subscribe((rows) => {
                 const members = this._processClubMembersFromDatabase(rows);
-
-                observer.next(members.length ? members[0] : undefined);
-                observer.complete();
+                nextAndComplete(observer, members.length ? members[0] : undefined)();
             });
         });
     }
@@ -48,17 +47,7 @@ export class ClubMemberService {
     save(member: ClubMember, clubId: string, seasonId: number): Observable<ClubMember> {
         return new Observable((observer) => {
             this.exists(member, seasonId).subscribe((exists) => {
-                if (exists) {
-                    this._update(member, clubId, seasonId).subscribe((saved) => {
-                        observer.next(member);
-                        observer.complete();
-                    });
-                } else {
-                    this._create(member, clubId, seasonId).subscribe((saved) => {
-                        observer.next(member);
-                        observer.complete();
-                    });
-                }
+                (exists ? this._update(member, clubId, seasonId) : this._create(member, clubId, seasonId)).subscribe(nextAndComplete(observer, member));
             })
         });
     }
@@ -72,8 +61,7 @@ export class ClubMemberService {
     exists(member: ClubMember, seasonId: number): Observable<boolean> {
         return new Observable((observer) => {
             this.get(member.uniqueIndex, seasonId).subscribe((member) => {
-                observer.next(typeof member === "undefined" ? false : true);
-                observer.complete();
+                nextAndComplete(observer, typeof member === "undefined" ? false : true)();
             });
         });
     }
@@ -88,8 +76,7 @@ export class ClubMemberService {
     private _create(member: ClubMember, clubId, seasonId) {
         return new Observable<boolean>((observer) => {
             this.db.execSQL(`INSERT INTO clubmembers VALUES (?,?,?,?,?,?,?,?)`, [member.position, member.uniqueIndex, member.rankingIndex, member.firstName, member.lastName, member.ranking, seasonId, clubId]).subscribe((rows) => {
-                observer.next(rows ? true : false);
-                observer.complete();
+                nextAndComplete(observer, rows ? true : false)();
             });
         });
     }
@@ -105,8 +92,7 @@ export class ClubMemberService {
         return new Observable<boolean>((observer) => {
             this.db.execSQL(`UPDATE clubmembers SET position = ?, rankingIndex = ?, firstName = ?, lastName = ?, ranking = ?, clubId = ? WHERE seasonId = ? AND uniqueIndex = ?`,
                 [member.position, member.rankingIndex, member.firstName, member.lastName, member.ranking, clubId, seasonId, member.uniqueIndex]).subscribe((rows) => {
-                    observer.next(rows ? true : false);
-                    observer.complete();
+                    nextAndComplete(observer, rows ? true : false)();
                 });
         });
     }
@@ -118,8 +104,7 @@ export class ClubMemberService {
     getAllByClub(club: Club, season: Season) {
         return new Observable<Array<ClubMember>>((observer) => {
             this.db.all(`SELECT * FROM clubmembers WHERE clubId = ? AND seasonId = ?`, [club.uniqueIndex, season.id]).subscribe((rows) => {
-                observer.next(this._processClubMembersFromDatabase(rows));
-                observer.complete();
+                nextAndComplete(observer, this._processClubMembersFromDatabase(rows))();
             });
         });
     }
@@ -202,10 +187,7 @@ export class ClubMemberService {
         return new Observable<Array<ClubMember>>((observer) => {
             this.getAllFromTabT(clubId, seasonId).subscribe((members) => {
                 members.forEach((member) => {
-                    this.save(member, clubId, seasonId).subscribe(() => {
-                        observer.next(members);
-                        observer.complete();
-                    });
+                    this.save(member, clubId, seasonId).subscribe(nextAndComplete(observer, members));
                 });
             });
         });

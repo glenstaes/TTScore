@@ -8,6 +8,7 @@ import { Club } from "../../clubs/club.model";
 import { Team } from "../team.model";
 import { TeamMatch } from "./TeamMatch.model";
 import { MatchDetails, MatchTeamPlayers, MatchPlayer, IndividualMatchResult } from "./match-details/MatchDetails.model";
+import { nextAndComplete } from "../../helpers";
 
 @Injectable()
 /**
@@ -32,14 +33,11 @@ export class TeamMatchesService {
     get(matchId: string, divisionId: number, teamId: string) {
         return new Observable<Team>((observer) => {
             if (typeof matchId === "undefined" || matchId === null) {
-                observer.next(undefined);
-                observer.complete();
+                nextAndComplete(observer, undefined)();
             } else {
                 this.db.all(`SELECT * FROM matches WHERE matchId = ? AND divisionId = ? AND teamId = ?`, [matchId, divisionId, teamId]).subscribe((rows) => {
                     const matches = this._processTeamMatchesFromDatabase(rows);
-
-                    observer.next(matches.length ? matches[0] : undefined);
-                    observer.complete();
+                    nextAndComplete(observer, matches.length ? matches[0] : undefined)();
                 });
             }
         });
@@ -129,18 +127,8 @@ export class TeamMatchesService {
     save(match: TeamMatch): Observable<TeamMatch> {
         return new Observable((observer) => {
             this.exists(match).subscribe((exists) => {
-                if (exists) {
-                    this._update(match).subscribe((saved) => {
-                        observer.next(match);
-                        observer.complete();
-                    });
-                } else {
-                    this._create(match).subscribe((saved) => {
-                        observer.next(match);
-                        observer.complete();
-                    });
-                }
-            })
+                (exists ? this._update(match) : this._create(match)).subscribe(nextAndComplete(observer, match));
+            });
         });
     }
 
@@ -152,8 +140,7 @@ export class TeamMatchesService {
     exists(match: TeamMatch): Observable<boolean> {
         return new Observable((observer) => {
             this.get(match.matchNumber, match.divisionId, match.teamId).subscribe((team) => {
-                observer.next(typeof team === "undefined" ? false : true);
-                observer.complete();
+                nextAndComplete(observer, typeof team === "undefined" ? false : true)();
             });
         });
     }
@@ -182,8 +169,7 @@ export class TeamMatchesService {
                 match.score,
                 match.uniqueIndex
             ]).subscribe((rows) => {
-                observer.next(rows ? true : false);
-                observer.complete();
+                nextAndComplete(observer, rows ? true : false)();
             });
         });
     }
@@ -214,8 +200,7 @@ export class TeamMatchesService {
                     match.matchNumber,
                     match.divisionId
                 ]).subscribe((rows) => {
-                    observer.next(rows ? true : false);
-                    observer.complete();
+                    nextAndComplete(observer, rows ? true : false)();
                 });
         });
     }
@@ -228,8 +213,7 @@ export class TeamMatchesService {
     getAllByTeam(team: Team) {
         return new Observable<Array<TeamMatch>>((observer) => {
             this.db.all(`SELECT * FROM matches WHERE teamId = ? ORDER BY weekName`, [team.teamId]).subscribe((rows) => {
-                observer.next(this._processTeamMatchesFromDatabase(rows));
-                observer.complete();
+                nextAndComplete(observer, this._processTeamMatchesFromDatabase(rows))();
             });
         });
     }
@@ -241,8 +225,7 @@ export class TeamMatchesService {
     getAllByDivision(divisionId: number) {
         return new Observable<Array<TeamMatch>>((observer) => {
             this.db.all(`SELECT * FROM matches WHERE divisionId = ? AND teamId = "" ORDER BY weekName`, [divisionId]).subscribe((rows) => {
-                observer.next(this._processTeamMatchesFromDatabase(rows));
-                observer.complete();
+                nextAndComplete(observer, this._processTeamMatchesFromDatabase(rows))();
             });
         });
     }
@@ -342,10 +325,7 @@ export class TeamMatchesService {
         return new Observable<Array<TeamMatch>>((observer) => {
             this.getAllFromTabT(clubId, team, divisionId).subscribe((matches) => {
                 matches.forEach((match) => {
-                    this.save(match).subscribe(() => {
-                        observer.next(matches);
-                        observer.complete();
-                    });
+                    this.save(match).subscribe(nextAndComplete(observer, matches));
                 });
             });
         });

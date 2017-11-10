@@ -7,6 +7,7 @@ let Sqlite = require("nativescript-sqlite");
 import { TabTSeasonsImportResult } from "../tabt/TabTImport.service";
 import { DatabaseService } from "../database/database.service";
 import { Season } from "./Season.model";
+import { nextAndComplete } from "../helpers";
 
 @Injectable()
 
@@ -43,12 +44,10 @@ export class SeasonsService {
                     // Cache the result
                     this.allSeasons = seasons;
 
-                    observer.next(seasons);
-                    observer.complete();
+                    nextAndComplete(observer, seasons)();
                 });
             } else {
-                observer.next(this.allSeasons);
-                observer.complete();
+                nextAndComplete(observer, this.allSeasons)();
             }
         });
     }
@@ -61,8 +60,7 @@ export class SeasonsService {
     get(seasonId) {
         return new Observable<Season>((observer) => {
             if (typeof seasonId === "undefined" || seasonId === null) {
-                observer.next(undefined);
-                observer.complete();
+                nextAndComplete(observer, undefined)();
             } else {
                 this.db.all(`SELECT * FROM seasons WHERE id = ?`, [seasonId]).subscribe((rows) => {
                     let seasons = [];
@@ -71,8 +69,7 @@ export class SeasonsService {
                         seasons.push(new Season(row[0], row[1], row[2]));
                     });
 
-                    observer.next(seasons.length ? seasons[0] : undefined);
-                    observer.complete();
+                    nextAndComplete(observer, seasons.length ? seasons[0] : undefined)();
                 });
             }
         });
@@ -86,18 +83,8 @@ export class SeasonsService {
     save(season: Season): Observable<Season> {
         return new Observable((observer) => {
             this.exists(season).subscribe((exists) => {
-                if (exists) {
-                    this._update(season).subscribe((saved) => {
-                        observer.next(season);
-                        observer.complete();
-                    });
-                } else {
-                    this._create(season).subscribe((saved) => {
-                        observer.next(season);
-                        observer.complete();
-                    });
-                }
-            })
+                (exists ? this._update(season) : this._create(season)).subscribe(nextAndComplete(observer, season));
+            });
         });
     }
 
@@ -109,8 +96,7 @@ export class SeasonsService {
     exists(season: Season): Observable<boolean> {
         return new Observable((observer) => {
             this.get(season.id).subscribe((season) => {
-                observer.next(typeof season === "undefined" ? false : true);
-                observer.complete();
+                nextAndComplete(observer, typeof season === "undefined" ? false : true)();
             });
         });
     }
@@ -123,8 +109,7 @@ export class SeasonsService {
     private _create(season: Season) {
         return new Observable<boolean>((observer) => {
             this.db.execSQL(`INSERT INTO seasons VALUES (?,?,?)`, [season.id, season.name, season.isCurrent]).subscribe((rows) => {
-                observer.next(rows ? true : false);
-                observer.complete();
+                nextAndComplete(observer, rows ? true : false)();
             });
         });
     }
@@ -137,8 +122,7 @@ export class SeasonsService {
     private _update(season: Season) {
         return new Observable<boolean>((observer) => {
             this.db.execSQL(`UPDATE seasons SET name = ?, isCurrent = ? WHERE id = ?`, [season.name, season.isCurrent, season.id]).subscribe((rows) => {
-                observer.next(rows ? true : false);
-                observer.complete();
+                nextAndComplete(observer, rows ? true : false)();
             });
         });
     }

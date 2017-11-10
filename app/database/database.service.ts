@@ -3,6 +3,8 @@ import { Observable } from "rxjs/Observable";
 let Sqlite = require("nativescript-sqlite");
 let appSettings = require("application-settings");
 
+import { nextAndComplete } from "../helpers";
+
 @Injectable()
 export class DatabaseService {
     private database: any;
@@ -32,8 +34,7 @@ export class DatabaseService {
 
                     if (nextIndex >= this.version) {
                         this.database.version(this.version);
-                        observer.next();
-                        observer.complete();
+                        nextAndComplete(observer, undefined)();
                     } else {
                         _executeVersionQuery(nextIndex);
                     }
@@ -98,8 +99,7 @@ export class DatabaseService {
         // Connect to the database
         if (this.database)
             return Observable.create((observer) => {
-                observer.next(this.database);
-                observer.complete();
+                nextAndComplete(observer, undefined)();
             }).toPromise();
         else
             return (new Sqlite("ttscore.db")).then((db) => {
@@ -116,8 +116,7 @@ export class DatabaseService {
         return new Observable<any>((observer) => {
             this.connect().then(() => {
                 this.database.execSQL(query, data).then((result) => {
-                    observer.next(result);
-                    observer.complete();
+                    nextAndComplete(observer, result)();
                 });
             });
         });
@@ -132,8 +131,7 @@ export class DatabaseService {
         return new Observable<any>((observer) => {
             this.connect().then(() => {
                 this.database.all(query, data).then((result) => {
-                    observer.next(result);
-                    observer.complete();
+                    nextAndComplete(observer, result)();
                 });
             });
         });
