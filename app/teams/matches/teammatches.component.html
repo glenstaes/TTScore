@@ -5,21 +5,5 @@
 <StackLayout class="page">
     <Label class="p-10" [text]="currentTeam?.divisionName"></Label>
     <ActivityIndicator *ngIf="isLoadingMatches" busy="true" width="100" height="100"></ActivityIndicator>
-    <ListView #rankingListView [items]="matches" class="list-group" (itemTap)="onTapMatch($event)">
-        <ng-template let-item="item">
-            <GridLayout columns="*, auto" rows="auto, auto" orientation="horizontal" class="p-10">
-                <Label class="h3" text="Week {{ item.weekName }}"></Label>
-                <Label row="1" text="{{ item.homeTeam }} - {{ item.awayTeam }}:"></Label>
-
-                <!-- Show either score or match date in the center -->
-                <StackLayout class="text-center" row="1" col="1" *ngIf="item.score !== ''">
-                    <Label class="h2" [text]="item.score"></Label>
-                </StackLayout>
-                <StackLayout class="text-center" row="1" col="1" *ngIf="item.score === ''">
-                    <Label [text]="item.matchDate"></Label>
-                    <Label [text]="item.matchTime"></Label>
-                </StackLayout>
-            </GridLayout>
-        </ng-template>
-    </ListView>
+    <matches-list [matches]="matches" (matchTap)="onTapMatch($event)"></matches-list>
 </StackLayout>

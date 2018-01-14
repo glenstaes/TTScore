@@ -12,6 +12,10 @@ export class MatchesListComponent {
     @Output()
     matchTap: EventEmitter<TeamMatch> = new EventEmitter<TeamMatch>();
 
+    onItemTap(event){
+        this.matchTap.emit(this.matches[event.index]);
+    }
+
     ngOnDestroy(){
         this.matchTap.complete();
     }

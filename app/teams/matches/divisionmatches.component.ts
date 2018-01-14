@@ -78,8 +78,7 @@ export class DivisionMatchesComponent {
     /**
      * Callback for when a match in the list is tapped. Navigates to the match details.
      */
-    onTapMatch(event){
-        const match = this.matches[event.index];
+    onTapMatch(match){
         this._routerExtensions.navigate(["/match-details/" + match.divisionId + "/" + match.uniqueIndex]);
     }
 

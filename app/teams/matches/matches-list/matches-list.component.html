@@ -1,6 +1,7 @@
-<ListView *ngIf="matches.length" #rankingListView [items]="matches" class="list-group" (itemTap)="matchTap.emit(match)">
+<ListView *ngIf="matches.length" #rankingListView [items]="matches" class="list-group" (itemTap)="onItemTap($event)">
     <ng-template let-match="item">
         <GridLayout columns="*, auto" rows="auto, auto" orientation="horizontal" class="p-10">
+            <Label class="h3" text="Week {{ match.weekName }}"></Label>
             <Label row="1" text="{{ match.homeTeam }} - {{ match.awayTeam }}:"></Label>
 
             <!-- Show either score or match date in the center -->
