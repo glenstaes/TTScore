@@ -82,8 +82,7 @@ export class ClubMatchesComponent {
      * Callback for when a match in the list is tapped. Navigates to the match details.
      */
     onTapMatch(match: TeamMatch) {
-        // const match = this.matches[event.index];
-        // this._routerExtensions.navigate(["/match-details/" + this.currentTeam.divisionId + "/" + match.uniqueIndex]);
+        this._routerExtensions.navigate(["/match-details/" + match.divisionId + "/" + match.uniqueIndex]);
     }
 
     /**
