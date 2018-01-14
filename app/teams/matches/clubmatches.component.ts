@@ -19,18 +19,21 @@ let appSettings = require("application-settings");
 })
 
 /**
- * This component is the page for displaying a list of matches for a team
+ * This component is the page for displaying a list of matches for a club
  */
 
 export class ClubMatchesComponent {
     currentClub: Club;
     isLoadingMatches: boolean = false;
+    tabSelectedIndex = 1;
 
     dayOfThisWeek: Date;
     dayOfLastWeek: Date;
     dayOfNextWeek: Date;
 
+    matchesLastWeek: Array<TeamMatch> = [];
     matchesThisWeek: Array<TeamMatch> = [];
+    matchesNextWeek: Array<TeamMatch> = [];
 
     /**
      * Creates a new instance of the component
@@ -61,28 +64,24 @@ export class ClubMatchesComponent {
 
         // When the club is retrieved, we can start to retrieve the matches
         this.isLoadingMatches = true;
-        this._matchesService.getClubMatchesInWeek(this.currentClub.uniqueIndex, this.dayOfThisWeek).finally(() => {
-            this.isLoadingMatches = false;
-        }).subscribe((matches) => {
-            this.matchesThisWeek = matches;
-        });
+        this._loadFromTabT();
     }
 
     /**
      * Fired when the refresh icon is tapped. Resets the ranking entries array and loads the data from the TabT api.
      */
     onTapRefreshIcon() {
+        this.matchesLastWeek = [];
         this.matchesThisWeek = [];
-        this.isLoadingMatches = true;
-        this._loadFromTabT().finally(() => {
-            this.isLoadingMatches = false;
-        });
+        this.matchesNextWeek = [];
+        
+        this._loadFromTabT();
     }
 
     /**
      * Callback for when a match in the list is tapped. Navigates to the match details.
      */
-    onTapMatch(event) {
+    onTapMatch(match: TeamMatch) {
         // const match = this.matches[event.index];
         // this._routerExtensions.navigate(["/match-details/" + this.currentTeam.divisionId + "/" + match.uniqueIndex]);
     }
@@ -92,12 +91,22 @@ export class ClubMatchesComponent {
      * Loads the data from the TabT api and displays the data.
      */
     private _loadFromTabT() {
-        const observable = this._matchesService.getClubMatchesInWeek(this.currentClub.uniqueIndex, this.dayOfThisWeek);
+        const observables = [];
+        observables.push(this._matchesService.getClubMatchesInWeek(this.currentClub.uniqueIndex, this.dayOfLastWeek));
+        observables.push(this._matchesService.getClubMatchesInWeek(this.currentClub.uniqueIndex, this.dayOfThisWeek));
+        observables.push(this._matchesService.getClubMatchesInWeek(this.currentClub.uniqueIndex, this.dayOfNextWeek));
 
-        observable.subscribe((matches) => {
-            this.matchesThisWeek = matches;
+        const forkJoin = Observable.forkJoin(...observables);
+
+        this.isLoadingMatches = true;
+        forkJoin.finally(() => {
+            this.isLoadingMatches = false;  
+        }).subscribe((matches: Array<Array<TeamMatch>>) => {
+            this.matchesLastWeek = matches[0];
+            this.matchesThisWeek = matches[1];
+            this.matchesNextWeek = matches[2];
         });
 
-        return observable;
+        return forkJoin;
     }
 }

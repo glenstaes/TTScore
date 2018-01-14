@@ -1,0 +1,16 @@
+<ListView *ngIf="matches.length" #rankingListView [items]="matches" class="list-group" (itemTap)="matchTap.emit(match)">
+    <ng-template let-match="item">
+        <GridLayout columns="*, auto" rows="auto, auto" orientation="horizontal" class="p-10">
+            <Label row="1" text="{{ match.homeTeam }} - {{ match.awayTeam }}:"></Label>
+
+            <!-- Show either score or match date in the center -->
+            <StackLayout class="text-center" row="1" col="1" *ngIf="match.score !== ''">
+                <Label class="h2" [text]="match.score"></Label>
+            </StackLayout>
+            <StackLayout class="text-center" row="1" col="1" *ngIf="match.score === ''">
+                <Label [text]="match.matchDate"></Label>
+                <Label [text]="match.matchTime"></Label>
+            </StackLayout>
+        </GridLayout>
+    </ng-template>
+</ListView>

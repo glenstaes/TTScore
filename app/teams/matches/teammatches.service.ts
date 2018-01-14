@@ -49,7 +49,7 @@ export class TeamMatchesService {
      * @param divisionId The unique identifier of the division the match belongs to
      * @param seasonId The season the match belongs to
      */
-    getMatchDetails(matchId: number, divisionId: number, seasonId: number): Observable<TeamMatch>{
+    getMatchDetails(matchId: number, divisionId: number, seasonId: number): Observable<TeamMatch> {
         let params: URLSearchParams = new URLSearchParams();
         params.set("action", "GetMatches");
         params.set("MatchUniqueId", matchId.toString());
@@ -96,15 +96,15 @@ export class TeamMatchesService {
                     })),
                     matchEntry.MatchDetails.IndividualMatchResults.map((result) => {
                         return new IndividualMatchResult(
-                            result.Position, 
-                            result.HomePlayerMatchIndex, 
+                            result.Position,
+                            result.HomePlayerMatchIndex,
                             result.HomePlayerUniqueIndex,
                             result.IsHomeForfeited || false,
-                            result.AwayPlayerMatchIndex, 
-                            result.AwayPlayerUniqueIndex, 
+                            result.AwayPlayerMatchIndex,
+                            result.AwayPlayerUniqueIndex,
                             result.IsAwayForfeited || false,
-                            result.HomeSetCount, 
-                            result.AwaySetCount, 
+                            result.HomeSetCount,
+                            result.AwaySetCount,
                             result.Scores);
                     }),
                     matchEntry.MatchDetails.MatchSystem,
@@ -267,10 +267,10 @@ export class TeamMatchesService {
      * @param clubId The unique identifier of the club
      * @param dayOfWeek A day of the week to fetch the matches for. Can be any day in that week.
      */
-    getClubMatchesInWeek(clubId: string, dayOfWeek: Date){
+    getClubMatchesInWeek(clubId: string, dayOfWeek: Date) {
         const monday = getMonday(dayOfWeek);
         const sunday = getSunday(dayOfWeek);
-        
+
         let params: URLSearchParams = new URLSearchParams();
         params.set("action", "GetMatches");
         params.set("Club", clubId);
@@ -285,25 +285,27 @@ export class TeamMatchesService {
             let jsonResponse = <TabTTeamMatchesResponse>(response.json() || { TeamMatchesEntries: [] });
             let matches = [];
 
-            jsonResponse.TeamMatchesEntries.forEach((matchEntry) => {
-                matches.push(new TeamMatch(
-                    matchEntry.MatchUniqueId,
-                    null,
-                    matchEntry.MatchId,
-                    "",
-                    matchEntry.WeekName,
-                    matchEntry.Date,
-                    matchEntry.Time,
-                    matchEntry.Venue,
-                    matchEntry.HomeClub,
-                    matchEntry.HomeTeam,
-                    matchEntry.AwayClub,
-                    matchEntry.AwayTeam,
-                    matchEntry.IsHomeForfeited,
-                    matchEntry.IsAwayForfeited,
-                    matchEntry.Score
-                ));
-            });
+            if (jsonResponse && jsonResponse.TeamMatchesEntries) {
+                jsonResponse.TeamMatchesEntries.forEach((matchEntry) => {
+                    matches.push(new TeamMatch(
+                        matchEntry.MatchUniqueId,
+                        null,
+                        matchEntry.MatchId,
+                        "",
+                        matchEntry.WeekName,
+                        matchEntry.Date,
+                        matchEntry.Time,
+                        matchEntry.Venue,
+                        matchEntry.HomeClub,
+                        matchEntry.HomeTeam,
+                        matchEntry.AwayClub,
+                        matchEntry.AwayTeam,
+                        matchEntry.IsHomeForfeited,
+                        matchEntry.IsAwayForfeited,
+                        matchEntry.Score
+                    ));
+                });
+            }
 
             return matches;
         });
@@ -403,7 +405,7 @@ interface TabTTeamMatch {
     MatchDetails?: TabTMatchDetails;
 }
 
-interface TabTMatchDetails{
+interface TabTMatchDetails {
     DetailsCreated: boolean;
     HomeCaptain: number;
     AwayCaptain: number;
@@ -431,7 +433,7 @@ interface TabTMatchPlayer {
     VictoryCount: number;
 }
 
-interface TabTIndividualMatchResult{
+interface TabTIndividualMatchResult {
     Position: number;
     HomePlayerMatchIndex: number;
     HomePlayerUniqueIndex: number;
