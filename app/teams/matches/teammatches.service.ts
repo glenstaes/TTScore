@@ -8,7 +8,7 @@ import { Club } from "../../clubs/club.model";
 import { Team } from "../team.model";
 import { TeamMatch } from "./TeamMatch.model";
 import { MatchDetails, MatchTeamPlayers, MatchPlayer, IndividualMatchResult } from "./match-details/MatchDetails.model";
-import { nextAndComplete } from "../../helpers";
+import { nextAndComplete, getMonday, getSunday } from "../../helpers";
 
 @Injectable()
 /**
@@ -260,6 +260,53 @@ export class TeamMatchesService {
         });
 
         return matches;
+    }
+
+    /**
+     * Gets the matches for a club in a specific week.
+     * @param clubId The unique identifier of the club
+     * @param dayOfWeek A day of the week to fetch the matches for. Can be any day in that week.
+     */
+    getClubMatchesInWeek(clubId: string, dayOfWeek: Date){
+        const monday = getMonday(dayOfWeek);
+        const sunday = getSunday(dayOfWeek);
+        
+        let params: URLSearchParams = new URLSearchParams();
+        params.set("action", "GetMatches");
+        params.set("Club", clubId);
+        params.set("YearDateFrom", `${monday.getFullYear()}-${monday.getMonth() + 1}-${monday.getDate()}`);
+        params.set("YearDateTo", `${sunday.getFullYear()}-${sunday.getMonth() + 1}-${sunday.getDate()}`);
+
+        let requestOptions = new RequestOptions({
+            search: params
+        });
+
+        return this.http.get("http://junosolutions.be/ttscore.php", requestOptions).map((response) => {
+            let jsonResponse = <TabTTeamMatchesResponse>(response.json() || { TeamMatchesEntries: [] });
+            let matches = [];
+
+            jsonResponse.TeamMatchesEntries.forEach((matchEntry) => {
+                matches.push(new TeamMatch(
+                    matchEntry.MatchUniqueId,
+                    null,
+                    matchEntry.MatchId,
+                    "",
+                    matchEntry.WeekName,
+                    matchEntry.Date,
+                    matchEntry.Time,
+                    matchEntry.Venue,
+                    matchEntry.HomeClub,
+                    matchEntry.HomeTeam,
+                    matchEntry.AwayClub,
+                    matchEntry.AwayTeam,
+                    matchEntry.IsHomeForfeited,
+                    matchEntry.IsAwayForfeited,
+                    matchEntry.Score
+                ));
+            });
+
+            return matches;
+        });
     }
 
     /**

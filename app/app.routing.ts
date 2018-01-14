@@ -12,6 +12,7 @@ import { TeamMatchesComponent } from "./teams/matches/teammatches.component";
 import { DivisionMatchesComponent } from "./teams/matches/divisionmatches.component";
 import { MatchDetailsComponent } from "./teams/matches/match-details/match-details.component";
 import { FavoritesComponent } from "./teams/favorites/favorites.component";
+import { ClubMatchesComponent } from "./teams/matches/clubmatches.component";
 
 const routes: Routes = [
     { path: "", redirectTo: "/home", pathMatch: "full" },
@@ -23,6 +24,7 @@ const routes: Routes = [
     { path: "ranking", component: RankingComponent },
     { path: "teammatches", component: TeamMatchesComponent },
     { path: "divisionmatches", component: DivisionMatchesComponent },
+    { path: "clubmatches", component: ClubMatchesComponent },
     { path: "match-details/:divisionId/:matchUniqueIndex", component: MatchDetailsComponent },
     { path: "favorites", component: FavoritesComponent }
 ];

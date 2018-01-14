@@ -24,6 +24,7 @@ import { MemberDetailsComponent } from "./members/member-details.component";
 import { RankingComponent } from "./rankings/ranking.component";
 import { TeamMatchesComponent } from "./teams/matches/teammatches.component";
 import { DivisionMatchesComponent } from "./teams/matches/divisionmatches.component";
+import { ClubMatchesComponent } from "./teams/matches/clubmatches.component";
 import { MatchDetailsComponent } from "./teams/matches/match-details/match-details.component";
 import { IndividualMatchDetailComponent } from "./teams/matches/match-details/individual-match-detail.component";
 import { FavoritesComponent } from "./teams/favorites/favorites.component";
@@ -48,6 +49,7 @@ import { FavoritesComponent } from "./teams/favorites/favorites.component";
         RankingComponent,
         TeamMatchesComponent,
         DivisionMatchesComponent,
+        ClubMatchesComponent,
         FavoritesComponent,
         MatchDetailsComponent,
         IndividualMatchDetailComponent
