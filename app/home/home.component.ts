@@ -63,7 +63,7 @@ export class HomeComponent implements OnInit {
         private _ngZone: NgZone,
         private _settingsService: SettingsService
     ) {
-        
+
     }
 
     /**
@@ -166,6 +166,22 @@ export class HomeComponent implements OnInit {
     onTapRemoveAsFavorite() {
         this._favoritesService.delete(this.currentTeam).subscribe((isRemoved) => {
             this.currentTeamIsFavorite = !isRemoved;
+        });
+    }
+
+    /**
+     * Callback for when the refresh icon is tapped. Refreshes the list of teams.
+     */
+    onTapRefreshIcon() {
+        this.isLoadingTeams = true;
+        this._teamsService.importFromTabT(this.currentClub.uniqueIndex, this.currentSeason.id).subscribe((importedTeams) => {
+            this.isLoadingTeams = false;
+            this.allTeams = importedTeams;
+            if (this.allTeams.length === 0) {
+                this.onChangeTeam({ value: 0 });
+            } else {
+                this._reselectCurrentTeam();
+            }
         });
     }
 }

@@ -1,4 +1,5 @@
 <ActionBar title='Home - {{ currentClub?.longName }}' class="action-bar">
+    <ActionItem text="Refresh" android.systemIcon="ic_popup_sync_6" (tap)="onTapRefreshIcon()"></ActionItem>
     <ActionItem [nsRouterLink]="['/settings']" text="Instellingen" android.systemIcon="ic_menu_preferences"></ActionItem>
     <ActionItem [nsRouterLink]="['/favorites']" text="Favorieten" icon="res://star_on"></ActionItem>
 </ActionBar>
@@ -11,10 +12,10 @@
             <Button *ngIf="currentClub" [nsRouterLink]="['/clubmatches']" text="Wedstrijden deze week"></Button>
             <Label class="h3" [text]="selectTeam"></Label>
             <ActivityIndicator *ngIf="isLoadingTeams" #activityIndicator busy="true" width="100" height="100"></ActivityIndicator>
-            <Label *ngIf="!allTeams.length" [text]="noTeamsLabel"></Label>
-            <ListPicker *ngIf="allTeams.length" [items]="allTeams" [selectedIndex]="selectedTeamIndex" (selectedIndexChange)="onChangeTeam($event)"></ListPicker>
+            <Label *ngIf="!allTeams.length && !isLoadingTeams" [text]="noTeamsLabel"></Label>
+            <ListPicker *ngIf="allTeams.length && !isLoadingTeams" [items]="allTeams" [selectedIndex]="selectedTeamIndex" (selectedIndexChange)="onChangeTeam($event)"></ListPicker>
 
-            <StackLayout *ngIf="currentTeam">
+            <StackLayout *ngIf="currentTeam && !isLoadingTeams">
                 <Label class="h3" [text]="teamActions"></Label>
                 <Label [text]="currentTeam.divisionName"></Label>
                 <Button [nsRouterLink]="['/ranking']" text="Rangschikking"></Button>

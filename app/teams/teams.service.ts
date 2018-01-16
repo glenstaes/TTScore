@@ -90,7 +90,7 @@ export class TeamsService {
      */
     private _update(team: Team) {
         return new Observable<boolean>((observer) => {
-            this.db.execSQL(`UPDATE teams SET team = ?, divisionId = ?, divisionName = ?, divisionCategoryId = ? WHERE teamId = ?`,
+            this.db.execSQL(`UPDATE teams SET team = ?, divisionId = ?, divisonName = ?, divisionCategoryId = ? WHERE teamId = ?`,
                 [team.team, team.divisionId, team.divisionName, team.divisionCategoryId, team.teamId]).subscribe((rows) => {
                     nextAndComplete(observer, rows ? true : false)();
                 });
