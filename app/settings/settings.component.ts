@@ -28,6 +28,7 @@ export class SettingsComponent implements OnInit {
     public allSeasons: Season[];
     public searchClubText: string = "";
     public isLoadingClubs: boolean = false;
+    public isLoadingSeasons: boolean = false;
 
     /**
      * Creates a new intance of the component
@@ -35,7 +36,7 @@ export class SettingsComponent implements OnInit {
      * @param {ClubsService} _clubsService - A reference to the clubs service
      */
     constructor(
-        private _seasonsService: SeasonsService, 
+        private _seasonsService: SeasonsService,
         private _clubsService: ClubsService,
         private _settingsService: SettingsService
     ) { }
@@ -90,7 +91,7 @@ export class SettingsComponent implements OnInit {
      * Looks for the currently selected club in the list of clubs. This function is very usefull when changing seasons!
      * @returns {number} The index of the club in the list of clubs.
      */
-    private _findClubIndexInCurrentSeason(){
+    private _findClubIndexInCurrentSeason() {
         let filteredClubs = this._settingsService.currentClub ? (this.allClubs || []).filter((club) => {
             return club.uniqueIndex === this._settingsService.currentClub.uniqueIndex;
         }) : [];
@@ -127,7 +128,7 @@ export class SettingsComponent implements OnInit {
      * @param {any} eventData - The event data
      * @param {TextField} searchClubField - A reference to the text field where the search value was typed
      */
-    onTapClub(eventData, searchClubField){
+    onTapClub(eventData, searchClubField) {
         let club = this.filteredClubs[eventData.index];
         this.searchClubText = "";
         searchClubField.dismissSoftInput();
@@ -140,11 +141,39 @@ export class SettingsComponent implements OnInit {
      * Fired when a user types in the search club textbox.
      * @param {any} eventData - The event data
      */
-    onTextChangeSearchClub(eventData){
+    onTextChangeSearchClub(eventData) {
         const textField = <TextField>eventData.object;
 
         this.filteredClubs = this.allClubs.filter((club) => {
             return club.toString().toLowerCase().indexOf(textField.text.toLowerCase()) > -1;
         });
+    }
+
+    /**
+     * Fired when the refresh icon is tapped. Resets the seasons array and loads the data from the TabT api.
+     */
+    refreshSeasons() {
+        this.allSeasons = [];
+
+        this.isLoadingSeasons = true;
+        this._loadFromTabT().subscribe(() => {
+            this.isLoadingSeasons = false;
+        });
+    }
+
+    /**
+     * @private
+     * Loads the data from the TabT api and displays the data.
+     */
+    private _loadFromTabT() {
+        const observable = this._seasonsService.importFromTabT();
+
+        observable.subscribe((importedSeasons) => {
+            if (importedSeasons.completed) {
+                this.allSeasons = importedSeasons.seasons;
+            }
+        });
+
+        return observable;
     }
 }

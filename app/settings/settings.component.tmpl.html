@@ -1,22 +1,26 @@
 <ActionBar title="TTScore - Instellingen" class="action-bar">
     <ActionItem [nsRouterLink]="['/home']" text="Home" android.systemIcon="ic_menu_home"></ActionItem>
+    <ActionItem text="Refresh" android.systemIcon="ic_popup_sync_6" (tap)="refreshSeasons()"></ActionItem>
 </ActionBar>
 <StackLayout class="p-10 page">
-    <StackLayout *ngIf="!searchClubField.text.length">
-        <Label class="h3" text="Seizoen"></Label>
-        <ListPicker [items]="allSeasons" [selectedIndex]="seasonIndex" (selectedIndexChange)="onChangeSeason($event)"></ListPicker>
+    <ActivityIndicator *ngIf="isLoadingSeasons" #activityIndicator busy="true" width="50" height="50"></ActivityIndicator>
+    <StackLayout *ngIf="!isLoadingSeasons">
+        <StackLayout *ngIf="!searchClubField.text.length">
+            <Label class="h3" text="Seizoen"></Label>
+            <ListPicker [items]="allSeasons" [selectedIndex]="seasonIndex" (selectedIndexChange)="onChangeSeason($event)"></ListPicker>
+        </StackLayout>
+        <Label class="h3" text="Club"></Label>
+        <TextField [(ngModel)]="searchClubText" #searchClubField hint="Club zoeken" autocorrect="false" class="input input-border"
+            (textChange)="onTextChangeSearchClub($event)"></TextField>
+        <StackLayout *ngIf="!searchClubField.text.length">
+            <ActivityIndicator *ngIf="isLoadingClubs" #activityIndicator busy="true" width="50" height="50"></ActivityIndicator>
+            <ListPicker *ngIf="allClubs?.length" [items]="allClubs" [selectedIndex]="clubIndex" (selectedIndexChange)="onChangeClub($event)"></ListPicker>
+            <Button *ngIf="!isLoadingClubs && allClubs?.length === 0" (tap)="importClubs()" text="Clubs ophalen"></Button>
+        </StackLayout>
+        <ListView *ngIf="searchClubField.text.length" [items]="filteredClubs" class="list-group" (itemTap)="onTapClub($event, searchClubField)">
+            <ng-template let-item="item">
+                <Label [text]="item.toString()" class="p-5"></Label>
+            </ng-template>
+        </ListView>
     </StackLayout>
-    <Label class="h3" text="Club"></Label>
-    <TextField [(ngModel)]="searchClubText" #searchClubField hint="Club zoeken" autocorrect="false" class="input input-border"
-        (textChange)="onTextChangeSearchClub($event)"></TextField>
-    <StackLayout *ngIf="!searchClubField.text.length">
-        <ActivityIndicator *ngIf="isLoadingClubs" #activityIndicator busy="true" width="50" height="50"></ActivityIndicator>
-        <ListPicker *ngIf="allClubs?.length" [items]="allClubs" [selectedIndex]="clubIndex" (selectedIndexChange)="onChangeClub($event)"></ListPicker>
-        <Button *ngIf="!isLoadingClubs && allClubs?.length === 0" (tap)="importClubs()" text="Clubs ophalen"></Button>
-    </StackLayout>
-    <ListView *ngIf="searchClubField.text.length" [items]="filteredClubs" class="list-group" (itemTap)="onTapClub($event, searchClubField)">
-        <ng-template let-item="item">
-            <Label [text]="item.toString()" class="p-5"></Label>
-        </ng-template>
-    </ListView>
 </StackLayout>
